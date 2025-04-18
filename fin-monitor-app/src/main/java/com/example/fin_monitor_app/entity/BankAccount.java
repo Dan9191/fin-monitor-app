@@ -29,6 +29,9 @@ public class BankAccount {
     @Column(name = "id")
     private Integer id;
 
+    @Column(name = "account_name", nullable = false, unique = true, length = 20)
+    private String accountName;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
