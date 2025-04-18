@@ -22,17 +22,20 @@ import java.util.List;
 @Table(name = "users")
 @Data
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
-
     @Column(name = "login", nullable = false, unique = true, length = 50)
     private String login;
+
+    @Column(name = "name", length = 500)
+    private String name;
+
+    @Column(name = "email", length = 500)
+    private String email;
 
     @Column(name = "password", nullable = false, length = 100)
     private String password;

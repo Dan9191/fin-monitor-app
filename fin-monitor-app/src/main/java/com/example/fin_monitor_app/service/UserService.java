@@ -4,17 +4,18 @@ import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.model.UserCreationResult;
 import com.example.fin_monitor_app.model.UserLoginResult;
 import com.example.fin_monitor_app.repository.UserRepository;
-import com.example.fin_monitor_app.service.cache.RoleCacheService;
 import com.example.fin_monitor_app.view.CreateUserView;
 import com.example.fin_monitor_app.view.LoginUserView;
+import com.example.fin_monitor_app.view.ProfileUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static com.example.fin_monitor_app.model.RoleEnum.USER;
 
 /**
  * Сервис по работе с пользователями.
@@ -24,7 +25,7 @@ import static com.example.fin_monitor_app.model.RoleEnum.USER;
 @Slf4j
 public class UserService {
 
-    private final RoleCacheService roleCacheService;
+    private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
 
@@ -44,21 +45,43 @@ public class UserService {
         }
         User user = new User();
         user.setLogin(createUserView.getLogin());
-        user.setPassword(createUserView.getPassword());
-        user.setRole(roleCacheService.findById(USER.getId()));
+        user.setPassword(passwordEncoder.encode(createUserView.getPassword()));
 
         userRepository.save(user);
         log.info("User {} added successfully", createUserView.getLogin());
         return UserCreationResult.successful(user);
     }
 
-    public UserLoginResult loginUser(LoginUserView loginUser) {
-        Optional<User> userJwt = userRepository.findByLoginAndPassword(loginUser.getLogin(), loginUser.getPassword());
-        return userJwt.map(user -> UserLoginResult.successful())
-                .orElseGet(() -> UserLoginResult.failure("Не удалось найти пользователя по такой комбинации"));
+    public void updateProfile(String login, ProfileUpdateDto updateDto) {
+        User user = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Обновляем имя, если оно изменилось
+        if (updateDto.getName() != null && !updateDto.getName().isEmpty()) {
+            user.setName(updateDto.getName());
+        }
+
+        // Обновляем email, если он изменился
+        if (updateDto.getEmail() != null && !updateDto.getEmail().isEmpty()) {
+            user.setEmail(updateDto.getEmail());
+        }
+
+        // Обновляем пароль, если предоставлен текущий и новый
+        if (updateDto.getCurrentPassword() != null &&
+                updateDto.getNewPassword() != null &&
+                !updateDto.getNewPassword().isEmpty()) {
+
+            if (!passwordEncoder.matches(updateDto.getCurrentPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Current password is incorrect");
+            }
+
+            user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
+        }
+
+        userRepository.save(user);
     }
 
     public User findByLogin(String login) {
-        return userRepository.findByLogin(login);
+        return userRepository.findByLogin(login).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
     }
 }

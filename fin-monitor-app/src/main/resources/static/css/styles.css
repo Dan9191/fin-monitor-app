@@ -1,0 +1,7 @@
+/* Стиль для активной ссылки */
+.active-link {
+    background-color: #caa8ae !important; /* Светло-розовый фон */
+    color: #0e0000 !important;
+    pointer-events: none;
+    cursor: default; /* Курсор по умолчанию */
+}

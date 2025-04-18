@@ -1,15 +1,17 @@
 package com.example.fin_monitor_app.model;
 
+import com.example.fin_monitor_app.entity.User;
+
 /**
  * Результат создания пользователя.
  */
-public record UserLoginResult(boolean isCreated, String errorMessage) {
+public record UserLoginResult(boolean isCreated, User user, String errorMessage) {
 
-    public static UserLoginResult successful() {
-        return new UserLoginResult(true,null);
+    public static UserLoginResult success(User user) {
+        return new UserLoginResult(true, user,null);
     }
 
     public static UserLoginResult failure(String errorMessage) {
-        return new UserLoginResult(false, errorMessage);
+        return new UserLoginResult(false, null, errorMessage);
     }
 }

@@ -1,35 +1,19 @@
 SET search_path TO fin_app;
 
--- Создаем таблицу role
-CREATE TABLE IF NOT EXISTS role (
-                                    id INTEGER PRIMARY KEY,
-                                    name VARCHAR(50) NOT NULL UNIQUE
-    );
-
-INSERT INTO role (id, name) SELECT 1, 'ADMIN'
-    WHERE NOT EXISTS (SELECT 1 FROM role WHERE id = 1);
-INSERT INTO role (id, name) SELECT 2, 'USER'
-    WHERE NOT EXISTS (SELECT 1 FROM role WHERE id = 2);
-INSERT INTO role (id, name) SELECT 3, 'DELETED'
-    WHERE NOT EXISTS (SELECT 1 FROM role WHERE id = 3);
-
-COMMENT ON TABLE role IS 'Таблица ролей пользователей';
-COMMENT ON COLUMN role.id IS 'Идентификатор роли';
-COMMENT ON COLUMN role.name IS 'Наименование роли';
-
 -- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
                        id SERIAL PRIMARY KEY,
-                       role_id INTEGER NOT NULL,
                        login VARCHAR(50) NOT NULL UNIQUE,
-                       password VARCHAR(100) NOT NULL,
-                       FOREIGN KEY (role_id) REFERENCES role(id)
+                       "name" VARCHAR(500),
+                       email VARCHAR(500),
+                       password VARCHAR(100) NOT NULL
 );
 
 COMMENT ON TABLE users IS 'Таблица для хранения информации о пользователях системы';
 COMMENT ON COLUMN users.id IS 'Идентификатор пользователя';
-COMMENT ON COLUMN users.role_id IS 'Ссылка на роль пользователя';
 COMMENT ON COLUMN users.login IS 'Логин для входа в систему (уникальный)';
+COMMENT ON COLUMN users."name" IS 'Имя пользователя';
+COMMENT ON COLUMN users.email IS 'Почта';
 COMMENT ON COLUMN users.password IS 'Хэшированный пароль пользователя';
 
 -- Таблица банковских счетов

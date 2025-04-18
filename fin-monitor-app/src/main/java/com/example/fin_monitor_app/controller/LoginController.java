@@ -10,9 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Controller
@@ -23,26 +22,12 @@ public class LoginController {
     private final UserService userService;
 
     @GetMapping
-    public String loginPage(Model model) {
-        model.addAttribute("user", new LoginUserView());
+    public String showLoginForm(@RequestParam(required = false) Boolean error, Model model) {
+        if (error != null && error) {
+            model.addAttribute("errorMessage", "Неверный логин или пароль");
+        }
+        model.addAttribute("loginUser", new LoginUserView());
         return "login";
     }
 
-    @PostMapping
-    public String login(@ModelAttribute LoginUserView user,
-                        HttpServletResponse response,
-                        Model model) {
-        log.info("login user: {}", user.getLogin());
-        UserLoginResult userLoginResult = userService.loginUser(user);
-        if (userLoginResult.isCreated()) {
-            Cookie cookie = new Cookie("login", user.getLogin());
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-            return "redirect:/user/operations";
-        } else {
-            model.addAttribute("errorMessage", userLoginResult.errorMessage());
-            return "redirect:/login";
-        }
-    }
 }
