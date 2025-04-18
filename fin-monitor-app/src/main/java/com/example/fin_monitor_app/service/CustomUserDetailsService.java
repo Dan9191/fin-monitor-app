@@ -1,10 +1,9 @@
 package com.example.fin_monitor_app.service;
 
 import com.example.fin_monitor_app.entity.User;
-import com.example.fin_monitor_app.model.UserLoginResult;
 import com.example.fin_monitor_app.repository.UserRepository;
-import com.example.fin_monitor_app.view.LoginUserView;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +13,7 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;

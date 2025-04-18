@@ -60,6 +60,42 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Карточка с операциями -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Мои операции</h5>
+
+                    <div class="accounts-scrollable">
+                        <div th:if="${finTransactions.empty}" class="alert alert-info">
+                            У вас пока нет операций
+                        </div>
+
+                        <table class="table" th:unless="${finTransactions.empty}">
+                            <thead>
+                            <tr>
+                                <th>Имя счета</th>
+                                <th>Тип счета</th>
+                                <th>Комментарий</th>
+                                <th>Категория</th>
+                                <th>Сумма</th>
+                                <th>Дата операции</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="transaction : ${finTransactions}">
+                                <td th:text="${transaction.bankAccount.accountName}"></td>
+                                <td th:text="${transaction.bankAccount.personType.name}"></td>
+                                <td th:text="${transaction.commentary}"></td>
+                                <td th:text="${transaction.category.name}"></td>
+                                <td th:text="${transaction.sum}"></td>
+                                <td th:text="${transaction.createDate}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * Финансовых транзакциях
@@ -60,4 +61,7 @@ public class FinTransaction {
 
     @Column(name = "recipient_telephone_number", length = 20)
     private String recipientTelephoneNumber;
+
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
 }
