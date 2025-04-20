@@ -2,20 +2,15 @@ package com.example.fin_monitor_app.service;
 
 import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.model.UserCreationResult;
-import com.example.fin_monitor_app.model.UserLoginResult;
 import com.example.fin_monitor_app.repository.UserRepository;
 import com.example.fin_monitor_app.view.CreateUserView;
-import com.example.fin_monitor_app.view.LoginUserView;
 import com.example.fin_monitor_app.view.ProfileUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * Сервис по работе с пользователями.
@@ -46,6 +41,7 @@ public class UserService {
         User user = new User();
         user.setLogin(createUserView.getLogin());
         user.setPassword(passwordEncoder.encode(createUserView.getPassword()));
+        user.setEmail(createUserView.getEmail());
 
         userRepository.save(user);
         log.info("User {} added successfully", createUserView.getLogin());
