@@ -1,10 +1,7 @@
 package com.example.fin_monitor_app.controller;
 
-import com.example.fin_monitor_app.model.UserLoginResult;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.view.LoginUserView;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
