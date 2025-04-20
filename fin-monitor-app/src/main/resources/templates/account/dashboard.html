@@ -15,10 +15,6 @@
             <div class="list-group">
                 <a href="/account/dashboard" class="list-group-item list-group-item-action active-link">Главная</a>
                 <a href="/account/profile" class="list-group-item list-group-item-action">Редактировать профиль</a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   data-bs-toggle="modal" data-bs-target="#createAccountModal">
-                    Создать кошелек
-                </a>
                 <form th:action="@{/logout}" method="post" class="list-group-item">
                     <button type="submit" class="btn btn-link text-start w-100">Выход</button>
                 </form>
@@ -32,7 +28,12 @@
             <!-- Карточка с кошельками -->
             <div class="card mt-3">
                 <div class="card-body">
-                    <h5 class="card-title">Мои кошельки</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Мои кошельки</h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+                            Создать операцию
+                        </button>
+                    </div>
 
                     <div class="accounts-scrollable">
                         <div th:if="${bankAccounts.empty}" class="alert alert-info">
@@ -64,8 +65,12 @@
             <!-- Карточка с операциями -->
             <div class="card mt-3">
                 <div class="card-body">
-                    <h5 class="card-title">Мои операции</h5>
-
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Мои операции</h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTransactionModal">
+                            Создать операцию
+                        </button>
+                    </div>
                     <div class="accounts-scrollable">
                         <div th:if="${finTransactions.empty}" class="alert alert-info">
                             У вас пока нет операций
@@ -129,6 +134,76 @@
                                     th:value="${type}"
                                     th:text="${type.label}"></option>
                         </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания операции -->
+<div class="modal fade" id="createTransactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать новую транзакцию</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/account/create-fin-transaction}" th:object="${createFinTransactionDto}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="bankAccount" class="form-label">Кошелек</label>
+                        <select class="form-select" id="bankAccount" th:field="*{bankAccountName}" required>
+                            <option value="">Выберите кошелек</option>
+                            <option th:each="account : ${bankAccounts}"
+                                    th:value="${account.accountName}"
+                                    th:text="${account.accountName + ' (' + account.balance + ')'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="transactionType" class="form-label">Тип операции</label>
+                        <select class="form-select" id="transactionType" th:field="*{transactionType}" required>
+                            <option value="">Выберите тип</option>
+                            <option th:each="type : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"
+                                    th:value="${type}"
+                                    th:text="${type.getLabel()}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Категория</label>
+                        <select class="form-select" id="category" th:field="*{categoryEnum}" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"
+                                    th:value="${category}"
+                                    th:text="${category.getLabel()}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="operationStatus" class="form-label">Статус операции</label>
+                        <select class="form-select" id="operationStatus" th:field="*{operationStatus}" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="status : ${T(com.example.fin_monitor_app.model.OperationStatusEnum).values()}"
+                                    th:value="${status}"
+                                    th:text="${status.getLabel()}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="balance" class="form-label">Сумма</label>
+                        <input type="number" step="0.01" class="form-control" id="balance"
+                               th:field="*{balance}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="commentary" class="form-label">Комментарий</label>
+                        <textarea class="form-control" id="commentary" th:field="*{commentary}"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

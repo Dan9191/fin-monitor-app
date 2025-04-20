@@ -9,6 +9,7 @@ import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.service.cache.PersonTypeCacheService;
 import com.example.fin_monitor_app.view.CreateBankAccountDto;
+import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -32,8 +33,6 @@ public class AccountController {
 
     private final BankAccountService bankAccountService;
 
-    private final PersonTypeCacheService personTypeCacheService;
-
     private final FinTransactionService finTransactionService;
 
 
@@ -47,6 +46,7 @@ public class AccountController {
         model.addAttribute("bankAccounts", accounts);
         model.addAttribute("finTransactions", finTransactions);
         model.addAttribute("createBankAccountDto", new CreateBankAccountDto());
+        model.addAttribute("createFinTransactionDto", new CreateFinTransactionDto());
         return "account/dashboard";
     }
 
@@ -54,26 +54,18 @@ public class AccountController {
     public String createAccount(
             @ModelAttribute CreateBankAccountDto createBankAccountDto,
             Principal principal) {
-
         User user = userService.findByLogin(principal.getName());
-        // Get the enum directly from DTO (no need for fromId conversion)
-        PersonTypeEnum personTypeEnum = createBankAccountDto.getPersonType();
-
-        BankAccount account = new BankAccount();
-        account.setUser(user);
-        account.setAccountName(createBankAccountDto.getBankAccountName());
-        // Store both the enum and cached type if needed
-        account.setPersonType(personTypeCacheService.findById(personTypeEnum.getId()));
-        account.setAccountNumber(generateAccountNumber());
-        account.setBalance(createBankAccountDto.getBalance() != null ?
-                createBankAccountDto.getBalance() : BigDecimal.ZERO);
-
-        bankAccountService.save(account);
+        bankAccountService.save(createBankAccountDto, user);
         return "redirect:/account/dashboard";
     }
 
-    private String generateAccountNumber() {
-        // Генерация номера счета (реализуйте по своему усмотрению)
-        return "ACC" + System.currentTimeMillis();
+    @PostMapping("/create-fin-transaction")
+    public String createFinTransaction(
+            @ModelAttribute CreateFinTransactionDto createFinTransactionDto,
+            Principal principal) {
+
+        finTransactionService.save(createFinTransactionDto);
+        return "redirect:/account/dashboard";
     }
+
 }
