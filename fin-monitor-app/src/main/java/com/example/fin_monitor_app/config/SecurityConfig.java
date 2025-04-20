@@ -26,7 +26,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .usernameParameter("login")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/account/dashboard")
+                        .defaultSuccessUrl("/account/dashboard", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
