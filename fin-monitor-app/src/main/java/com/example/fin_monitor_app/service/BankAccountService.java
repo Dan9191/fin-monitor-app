@@ -45,6 +45,10 @@ public class BankAccountService {
         return bankAccountRepository.findAllByUser(user);
     }
 
+    public List<BankAccount> getBankAccounts(String name) {
+        return bankAccountRepository.findByAccountName(name);
+    }
+
 
     private String generateAccountNumber() {
         // Генерация номера счета (реализуйте по своему усмотрению)
