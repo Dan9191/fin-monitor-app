@@ -45,8 +45,8 @@ public class BankAccountService {
         return bankAccountRepository.findAllByUser(user);
     }
 
-    public List<BankAccount> getBankAccounts(String name) {
-        return bankAccountRepository.findByAccountName(name);
+    public BankAccount getBankAccountById(Integer id) {
+        return bankAccountRepository.findById(id);
     }
 
 

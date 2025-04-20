@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -57,12 +58,23 @@ public class AccountController {
     }
 
     @PostMapping("/create-fin-transaction")
-    public String createFinTransaction(
-            @ModelAttribute CreateFinTransactionDto createFinTransactionDto,
-            Principal principal) {
+    public String createFinTransaction(@ModelAttribute CreateFinTransactionDto createFinTransactionDto) {
 
         finTransactionService.save(createFinTransactionDto);
         return "redirect:/account/dashboard";
+    }
+
+    @GetMapping("/account/{id}/operations")
+    public String showAccountOperations(@PathVariable Integer id, Model model) {
+        BankAccount account = bankAccountService.getBankAccountById(id);
+
+        if (account == null) {
+            return "redirect:/account/dashboard";
+        }
+
+        List<FinTransaction> transactions = finTransactionService.getFinTransactionsByBankAccount(account);
+        model.addAttribute("finTransactions", transactions);
+        return "account/fin-operations";
     }
 
 }
