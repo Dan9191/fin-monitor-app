@@ -82,12 +82,16 @@ public class AccountController {
                 .collect(Collectors.toList());
 
         // Группировка по категориям для операций последней недели
-        Map<String, Long> transactionsByCategory = finTransactions.stream()
+        Map<String, BigDecimal> transactionsByCategory = finTransactions.stream()
                 .filter(t -> last7Days.contains(t.getCreateDate().toLocalDate()))
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
-                        Collectors.counting()
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                FinTransaction::getSum,
+                                BigDecimal::add
+                        )
                 ));
 
         model.addAttribute("user", user);
@@ -136,12 +140,16 @@ public class AccountController {
         }
 
         // Группировка по категориям для операций последней недели
-        Map<String, Long> transactionsByCategory = transactions.stream()
+        Map<String, BigDecimal> transactionsByCategory = transactions.stream()
                 .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
-                        Collectors.counting()
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                FinTransaction::getSum,
+                                BigDecimal::add
+                        )
                 ));
 
         model.addAttribute("finTransactions", transactions);
