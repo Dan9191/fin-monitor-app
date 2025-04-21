@@ -15,6 +15,6 @@ public class CreateUserView {
     private String login;
     private String password;
     private String email;
-
-
+    private String phone;
+    private String name;
 }
