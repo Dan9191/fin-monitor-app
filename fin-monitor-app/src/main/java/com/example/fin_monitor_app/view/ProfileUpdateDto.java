@@ -12,6 +12,7 @@ public class ProfileUpdateDto {
     private String login;
     private String name;
     private String email;
+    private String phone;
     private String currentPassword;
     private String newPassword;
 
@@ -20,5 +21,6 @@ public class ProfileUpdateDto {
         this.login = user.getLogin();
         this.name = user.getName();
         this.email = user.getEmail();
+        this.phone = user.getPhone();
     }
 }

@@ -42,6 +42,8 @@ public class UserService {
         user.setLogin(createUserView.getLogin());
         user.setPassword(passwordEncoder.encode(createUserView.getPassword()));
         user.setEmail(createUserView.getEmail());
+        user.setPhone(createUserView.getPhone());
+        user.setName(createUserView.getName());
 
         userRepository.save(user);
         log.info("User {} added successfully", createUserView.getLogin());
@@ -60,6 +62,16 @@ public class UserService {
         // Обновляем email, если он изменился
         if (updateDto.getEmail() != null && !updateDto.getEmail().isEmpty()) {
             user.setEmail(updateDto.getEmail());
+        }
+
+        // Обновляем телефон, если он изменился
+        if (updateDto.getPhone() != null && !updateDto.getPhone().isEmpty()) {
+            user.setPhone(updateDto.getPhone());
+        }
+
+        // Обновляем имя, если оно изменилось
+        if (updateDto.getName() != null && !updateDto.getName().isEmpty()) {
+            user.setName(updateDto.getName());
         }
 
         // Обновляем пароль, если предоставлен текущий и новый

@@ -48,6 +48,13 @@
                            th:field="*{email}" th:value="${user.email}">
                 </div>
 
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Мобильный телефон</label>
+                    <input type="phone" class="form-control" id="phone"
+                           th:field="*{phone}" th:value="${user.phone}">
+                </div>
+
                 <!-- Смена пароля -->
                 <div class="card mb-3">
                     <div class="card-header">Смена пароля</div>
