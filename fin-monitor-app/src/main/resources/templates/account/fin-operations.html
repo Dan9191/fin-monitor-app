@@ -96,6 +96,35 @@
     </div>
 </div>
 
+<!-- Карточка со статистикой операций -->
+<div class="card mt-3">
+    <div class="card-body">
+        <h4 class="card-title text-center mb-4">Статистика операций за 30 дней</h4>
+            <div class="col-md-10-center">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Распределение объема финансов по категориям</h4>
+                        <div class="chart-container" style="height: 600px;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--&lt;!&ndash; Подключение JS &ndash;&gt;-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/charts.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryData = [[${transactionsByCategory}]];
+
+        // Инициализация графиков
+        initCategoryChart('categoryChart', categoryData);
+    });
+</script>
 </body>
 </html>
