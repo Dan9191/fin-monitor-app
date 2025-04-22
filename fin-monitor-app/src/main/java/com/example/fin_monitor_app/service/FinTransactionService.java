@@ -14,8 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Сервис работы с финансовыми операциями.
@@ -46,7 +50,7 @@ public class FinTransactionService {
 
         finTransaction.setBankAccount(bankAccount);
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
-        finTransaction.setSum(createFinTransactionDto.getBalance());
+        finTransaction.setSum(createFinTransactionDto.getBalance().abs());
         finTransaction.setCreateDate(LocalDateTime.now());
         finTransaction.setCommentary(createFinTransactionDto.getCommentary());
         finTransaction.setTransactionType(
