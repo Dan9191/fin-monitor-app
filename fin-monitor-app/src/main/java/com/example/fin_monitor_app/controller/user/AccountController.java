@@ -12,14 +12,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/account")
@@ -73,8 +74,36 @@ public class AccountController {
         }
 
         List<FinTransaction> transactions = finTransactionService.getFinTransactionsByBankAccount(account);
+
+        List<LocalDate> last30Days = new ArrayList<>();
+        for (int i = 29; i >= 0; i--) {
+            last30Days.add(LocalDate.now().minusDays(i));
+        }
+
+        // Группировка по категориям для операций последней недели
+        Map<String, BigDecimal> transactionsByCategory = transactions.stream()
+                .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
+                .filter(t -> t.getCategory() != null)
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory().getName(),
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                FinTransaction::getSum,
+                                BigDecimal::add
+                        )
+                ));
+
         model.addAttribute("finTransactions", transactions);
+        model.addAttribute("transactionsByCategory", transactionsByCategory);
         return "account/fin-operations";
+    }
+
+    @PostMapping("/delete-account/{id}") // Изменили на POST
+    public String deleteAccount(
+            @PathVariable Integer id) {
+        BankAccount account = bankAccountService.getBankAccountById(id);
+        bankAccountService.delete(account);
+        return "redirect:/account/dashboard";
     }
 
 }
