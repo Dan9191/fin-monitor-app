@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +138,7 @@ public class AccountController {
             last30Days.add(LocalDate.now().minusDays(i));
         }
 
-        // Группировка по категориям для операций последней недели
+        // Группировка по категориям для операций последних 30 дней
         Map<String, BigDecimal> transactionsByCategory = transactions.stream()
                 .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
                 .filter(t -> t.getCategory() != null)
@@ -155,6 +154,14 @@ public class AccountController {
         model.addAttribute("finTransactions", transactions);
         model.addAttribute("transactionsByCategory", transactionsByCategory);
         return "account/fin-operations";
+    }
+
+    @PostMapping("/delete-account/{id}") // Изменили на POST
+    public String deleteAccount(
+            @PathVariable Integer id) {
+        BankAccount account = bankAccountService.getBankAccountById(id);
+        bankAccountService.delete(account);
+        return "redirect:/account/dashboard";
     }
 
 }
