@@ -138,7 +138,7 @@ public class AccountController {
             last30Days.add(LocalDate.now().minusDays(i));
         }
 
-        // Группировка по категориям для операций последней недели
+        // Группировка по категориям для операций последних 30 дней
         Map<String, BigDecimal> transactionsByCategory = transactions.stream()
                 .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
                 .filter(t -> t.getCategory() != null)
