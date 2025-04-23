@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.example.fin_monitor_app.model.OperationStatusEnum.DELETED;
 import static com.example.fin_monitor_app.model.TransactionTypeEnum.INCOME;
 import static com.example.fin_monitor_app.model.TransactionTypeEnum.OUTCOME;
 
@@ -84,6 +85,7 @@ public class AccountController {
         // Группировка по категориям для операций последней недели
         Map<String, BigDecimal> transactionsByCategory = finTransactions.stream()
                 .filter(t -> last7Days.contains(t.getCreateDate().toLocalDate()))
+                .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
@@ -142,6 +144,7 @@ public class AccountController {
         // Группировка по категориям для операций последних 30 дней
         Map<String, BigDecimal> transactionsByCategory = transactions.stream()
                 .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
+                .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
