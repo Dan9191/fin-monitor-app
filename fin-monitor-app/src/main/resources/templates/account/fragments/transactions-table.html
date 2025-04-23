@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Я решил вынести таблицу в отдельный фрагмент (мне так читать удобнее) -->
+<div th:fragment="transactionsTable(finTransactions)">
+    <table class="table" th:unless="${finTransactions.empty}">
+        <thead>
+        <tr>
+            <th>Имя счета</th>
+            <th>Тип счета</th>
+            <th>Комментарий</th>
+            <th>Категория</th>
+            <th>Сумма</th>
+            <th>Дата операции</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="transaction : ${finTransactions}"
+            th:class="${transaction.sum > 0 ? 'income' : 'expense'}"
+            class="transaction-row">
+            <td th:text="${transaction.bankAccount.accountName}"></td>
+            <td th:text="${transaction.bankAccount.personType.name}"></td>
+            <td th:text="${transaction.commentary} ?: 'Без комментария'"></td>
+            <td th:text="${transaction.category.name}"></td>
+            <td th:text="${transaction.sum > 0 ? '+' : ''} + ${#numbers.formatDecimal(transaction.sum, 1, 2)}"></td>
+            <td th:text="${#temporals.format(transaction.createDate, 'dd.MM.yyyy HH:mm')}"></td>
+            <!-- Добавил статус в список -->
+            <td th:text="${transaction.operationStatus.name}"></td>
+            <td>
+                <!-- Кнопка с проверкой статусов -->
+                <button type="button"
+                        class="btn"
+                        th:classappend="${transaction.operationStatus.name == 'Подтвержденная' or
+                        transaction.operationStatus.name == 'В обработке' or
+                        transaction.operationStatus.name == 'Отменена' or
+                        transaction.operationStatus.name == 'Платеж выполнен' or
+                        transaction.operationStatus.name == 'Возврат' or
+                        transaction.operationStatus.name == 'Платеж удален'} ?
+                        'btn-secondary disabled' : 'btn-danger'"
+                        th:disabled="${transaction.operationStatus.name == 'Подтвержденная' or
+                        transaction.operationStatus.name == 'В обработке' or
+                        transaction.operationStatus.name == 'Отменена' or
+                        transaction.operationStatus.name == 'Платеж выполнен' or
+                        transaction.operationStatus.name == 'Возврат' or
+                        transaction.operationStatus.name == 'Платеж удален'}"
+                        th:attr="data-id=${transaction.id}"
+                        onclick="deleteTransaction(this)">
+                    Удалить
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

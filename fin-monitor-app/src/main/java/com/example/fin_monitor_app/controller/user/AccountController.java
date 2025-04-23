@@ -8,6 +8,7 @@ import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -162,6 +163,21 @@ public class AccountController {
         BankAccount account = bankAccountService.getBankAccountById(id);
         bankAccountService.delete(account);
         return "redirect:/account/dashboard";
+    }
+
+    @PostMapping("/delete-transaction/{id}")
+    public String markTransactionAsDeleted(
+            @PathVariable Long id,
+            /* Получаем запрос (для получения страницы, так как у нас в двух местах удаление операции есть
+             и нужно делать корректный переход)
+             */
+            HttpServletRequest request) {
+
+        finTransactionService.markAsDeleted(id);
+
+        // Получаем URL предыдущей страницы из заголовка "Referer"
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/account/dashboard");
     }
 
 }

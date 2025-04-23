@@ -108,7 +108,7 @@ function initCategoryChart(chartId, categoryData) {
                         size: 14 // Размер шрифта тела подсказки
                     },
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             const label = context.label || '';
                             const value = context.raw || 0;
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -147,7 +147,9 @@ function confirmDelete(button) {
         })
             .then(response => {
                 if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
+                    return response.text().then(text => {
+                        throw new Error(text)
+                    });
                 }
                 // Просто перезагружаем страницу без уведомления
                 location.reload();
@@ -155,6 +157,34 @@ function confirmDelete(button) {
             .catch(error => {
                 // Показываем только ошибки, если они возникли
                 alert('Ошибка при удалении: ' + error.message);
+            });
+    }
+}
+<!-- Удаление транзакции (меняем статус на удалена -->
+function deleteTransaction(button) {
+    const transactionId = button.getAttribute('data-id');
+    if (confirm('Вы точно хотите удалить эту операцию?')) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        fetch(`/account/delete-transaction/${transactionId}`, {
+            method: 'POST',
+            headers: {
+                [csrfHeader]: csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text)
+                    });
+                }
+                location.reload();
+            })
+            .catch(error => {
+                alert('Ошибка при удалении операции: ' + error.message);
             });
     }
 }

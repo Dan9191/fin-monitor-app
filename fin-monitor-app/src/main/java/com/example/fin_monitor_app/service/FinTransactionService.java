@@ -14,6 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
+import com.example.fin_monitor_app.entity.OperationStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -82,6 +86,21 @@ public class FinTransactionService {
      */
     public List<FinTransaction> getFinTransactionsByUser(User user) {
         return finTransactionRepository.findTransactionsByUserOrderByCreateDate(user);
+    }
+    /**
+     * Изменение статуса операции
+     *
+     * @param transactionId id-изменяемой транзакции.
+     */
+    public void markAsDeleted(Long transactionId) {
+        FinTransaction transaction = finTransactionRepository.findById(transactionId)
+                .orElseThrow(() -> new NoSuchElementException("Transaction not found with id: " + transactionId));
+
+        OperationStatus deletedStatus = operationStatusCacheService.findById(OperationStatusEnum.DELETED.getId());
+        transaction.setOperationStatus(deletedStatus);
+
+        finTransactionRepository.save(transaction);
+        log.info("Transaction {} marked as deleted", transactionId);
     }
 
 }
