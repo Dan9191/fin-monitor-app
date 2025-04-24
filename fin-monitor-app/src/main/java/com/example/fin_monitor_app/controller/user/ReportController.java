@@ -5,7 +5,6 @@ import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.reports.HttpReport;
 import com.example.fin_monitor_app.repository.FinTransactionRepository;
 import com.example.fin_monitor_app.service.BankAccountService;
-import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import java.util.List;
 public class ReportController {
     private final UserService userService;
     private final BankAccountService bankAccountService;
-    private final FinTransactionService finTransactionService;
     private final FinTransactionRepository finTransactionRepository;
 
     @GetMapping
