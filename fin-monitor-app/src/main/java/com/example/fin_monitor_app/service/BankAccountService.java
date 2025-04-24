@@ -41,6 +41,12 @@ public class BankAccountService {
         bankAccountRepository.save(account);
     }
 
+    @Transactional
+    public void delete(BankAccount bankAccount) {
+        log.info("delete bank account: {}", bankAccount.getAccountName());
+        bankAccountRepository.delete(bankAccount);
+    }
+
     public List<BankAccount> getBankAccounts(User user) {
         return bankAccountRepository.findAllByUser(user);
     }

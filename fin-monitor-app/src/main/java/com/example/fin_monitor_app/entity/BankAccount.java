@@ -10,7 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +23,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "bank_accounts")
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class BankAccount {
 
     @Id
@@ -48,4 +52,6 @@ public class BankAccount {
 
     @OneToMany(mappedBy = "bankAccount", cascade = CascadeType.ALL)
     private List<FinTransaction> transactions;
+
+    public BankAccount() {}
 }
