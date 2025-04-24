@@ -6,6 +6,7 @@ import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.service.BankAccountService;
 import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
+import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,10 +41,12 @@ public class OperationController {
                                       Principal principal) {
         User user = userService.findByLogin(principal.getName());
         BankAccount account = bankAccountService.getBankAccountById(accountId);
-
         if (account == null) {
             return "redirect:/account/dashboard";
         }
+        CreateFinTransactionDto createFinTransactionDto = new CreateFinTransactionDto();
+        createFinTransactionDto.setBankAccountName(account.getAccountName());
+
 
         Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByBankAccount(account, page, 5);
         List<FinTransaction> last30DaysTransactions = finTransactionService.getFinTransactionsByBankAccountAndPeriod(
@@ -74,7 +77,7 @@ public class OperationController {
         model.addAttribute("transactionsPage", transactionsPage);
         model.addAttribute("transactionsByCategory", transactionsByCategory);
         model.addAttribute("bankAccounts", bankAccountService.getBankAccounts(user));
-        model.addAttribute("createFinTransactionDto", new CreateFinTransactionDto());
+        model.addAttribute("createFinTransactionDto", createFinTransactionDto);
         model.addAttribute("currentAccountId", accountId);
         model.addAttribute("currentUri", "/operations/" + accountId);
         
@@ -83,7 +86,7 @@ public class OperationController {
 
     @PostMapping("/create/{accountId}")
     public String createFinTransaction(@ModelAttribute CreateFinTransactionDto createFinTransactionDto,
-                                     @PathVariable Integer accountId) {
+                                       @PathVariable Integer accountId) {
         finTransactionService.save(createFinTransactionDto);
         return "redirect:/operations/" + accountId;
     }
