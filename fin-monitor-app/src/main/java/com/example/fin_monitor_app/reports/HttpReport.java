@@ -2,7 +2,6 @@ package com.example.fin_monitor_app.reports;
 
 import com.example.fin_monitor_app.entity.FinTransaction;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,20 +17,16 @@ public abstract class HttpReport {
     }
 
     public static HttpReport createReport(String fileExtension) {
-        if (fileExtension == null) {
-            throw new IllegalArgumentException("File extension cannot be null");
-        }
+        if (fileExtension == null) throw new IllegalArgumentException("File extension cannot be null");
 
         return switch (fileExtension.toLowerCase()) {
             case "xlsx" -> new HttpReportXlsx();
             case "csv"  -> new HttpReportCsv();
             case "pdf"  -> new HttpReportPdf();
-            default -> throw new IllegalArgumentException(
-                    "Unsupported file extension: " + fileExtension +
-                            ". Supported extensions: xlsx, csv, pdf"
-            );
+            default -> throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
         };
     }
 
-    public abstract void downloadTransactionDetailsReport(List<FinTransaction> transactions, HttpServletResponse response) throws IOException;
+    public abstract void downloadTransactionDetailsReport(List<FinTransaction> transactions, HttpServletResponse response)
+            throws IOException;
 }

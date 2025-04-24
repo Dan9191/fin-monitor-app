@@ -1,15 +1,12 @@
 package com.example.fin_monitor_app.view;
 
-import com.example.fin_monitor_app.model.CategoryEnum;
-import com.example.fin_monitor_app.model.OperationStatusEnum;
-import com.example.fin_monitor_app.model.TransactionTypeEnum;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.math.BigDecimal;
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class EditFinTransactionDto extends CreateFinTransactionDto {
