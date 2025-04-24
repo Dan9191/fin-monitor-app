@@ -38,6 +38,11 @@ dependencies {
 	implementation 'org.apache.poi:poi:5.2.3'
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// Apache POI для работы с PDF
+	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+	// Для генерации PDF (iText 7)
+	implementation 'com.itextpdf:itext7-core:7.2.5'
 }
 
 tasks.named('test') {
