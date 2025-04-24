@@ -77,6 +77,18 @@
                             </div>
                         </div>
 
+                        <!-- Диапазон суммы -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="minAmount" class="form-label">Минимальная сумма</label>
+                                <input type="number" class="form-control" id="minAmount" name="minAmount" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="maxAmount" class="form-label">Максимальная сумма</label>
+                                <input type="number" class="form-control" id="maxAmount" name="maxAmount" min="0" step="0.01" placeholder="Без ограничения">
+                            </div>
+                        </div>
+
                         <!-- Формат отчёта -->
                         <div class="mb-3">
                             <label for="fileExtension" class="form-label">Формат отчёта</label>
