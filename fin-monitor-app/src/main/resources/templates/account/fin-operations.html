@@ -53,7 +53,7 @@
                             У вас пока нет операций
                         </div>
                         <!-- Фрагмент таблицы транзакций -->
-                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri})}"></div>
+                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri}, ${bankAccount})}"></div>
                     </div>
                 </div>
             </div>
@@ -61,21 +61,9 @@
     </div>
 </div>
 
-<!-- Модальное окно для создания операции -->
-<div class="modal fade" id="createTransactionModal" tabindex="-1" aria-labelledby="createTransactionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createTransactionModalLabel">Новая операция</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Форма будет здесь -->
-                <p>Форма для создания новой операции будет здесь</p>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Подключение фрагмента модального окна создания операции -->
+<div th:replace="~{/account/fragments/create-transaction-modal :: createTransactionModal(${bankAccount}, ${createFinTransactionDto})}"></div>
+
 
 <!-- Карточка со статистикой операций -->
 <div class="card mt-3">

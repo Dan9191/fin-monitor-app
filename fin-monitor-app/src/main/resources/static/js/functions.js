@@ -160,6 +160,7 @@ function confirmDelete(button) {
             });
     }
 }
+
 <!-- Удаление транзакции (меняем статус на удалена -->
 function deleteTransaction(button) {
     const transactionId = button.getAttribute('data-id');
@@ -187,4 +188,38 @@ function deleteTransaction(button) {
                 alert('Ошибка при удалении операции: ' + error.message);
             });
     }
+}
+
+<!-- Заполняем и подготавливаем форму для редактирования -->
+function prepareEditForm(button) {
+    // Сори за три костыля, но я 6 часов думал как это иначе сделать, так и не додумался
+    const transactionId = button.getAttribute('data-id');
+    const accountName = button.getAttribute('data-account-name');
+    const accountBalance = button.getAttribute('data-account-balance');
+
+    fetch(`/account/transaction/${transactionId}`)
+        .then(response => response.json())
+        .then(transaction => {
+
+            // Устанавливаем action формы
+            document.getElementById('editTransactionForm').action = `/account/edit-fin-transaction/${transactionId}`;
+
+
+            const accountHiddenInput = document.getElementById('editBankAccountHidden');
+            const accountDisplayInput = document.getElementById('editBankAccountDisplay');
+
+            if (accountHiddenInput && accountDisplayInput) {
+                accountHiddenInput.value = accountName;
+                accountDisplayInput.value = `${accountName} (${accountBalance})`;
+            }
+
+            // Заполняем форму редактирования
+            document.getElementById('editTransactionId').value = transactionId;
+            document.getElementById('editTransactionType').value = transaction.transactionType;
+            document.getElementById('editCategory').value = transaction.categoryEnum;
+            document.getElementById('editOperationStatus').value = transaction.operationStatus;
+            document.getElementById('editBalance').value = transaction.balance;
+            document.getElementById('editCommentary').value = transaction.commentary;
+        })
+        .catch(error => alert('Ошибка при редактировании операции: ' + error.message));
 }
