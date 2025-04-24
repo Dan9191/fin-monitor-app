@@ -60,6 +60,16 @@ public class FinTransactionService {
                 operationStatusCacheService.findById(createFinTransactionDto.getOperationStatus().getId())
         );
 
+        // дополнительные поля для операции
+        finTransaction.setSenderBank(createFinTransactionDto.getSenderBank()); //Банк отправителя
+        finTransaction.setRecipientBank(createFinTransactionDto.getRecipientBank()); //Банк получателя
+        finTransaction.setRecipientBankAccount(createFinTransactionDto.getRecipientBankAccount()); //Расчетный счет получателя
+        finTransaction.setRecipientTelephoneNumber(createFinTransactionDto.getRecipientTelephoneNumber());//Телефон получателя
+        finTransaction.setRecipientTin(createFinTransactionDto.getRecipientTin()); // ИНН получателя
+        finTransaction.setWithdrawalAccount(createFinTransactionDto.getWithdrawalAccount());//Счет списания
+
+
+
         finTransactionRepository.save(finTransaction);
         log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.getAccountName());
     }
