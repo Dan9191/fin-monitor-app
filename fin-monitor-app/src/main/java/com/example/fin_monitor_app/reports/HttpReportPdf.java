@@ -2,6 +2,8 @@ package com.example.fin_monitor_app.reports;
 
 import com.example.fin_monitor_app.entity.FinTransaction;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -34,9 +36,13 @@ public class HttpReportPdf extends HttpReport {
             PdfWriter writer = new PdfWriter(outputStream);
             PdfDocument pdfDoc = new PdfDocument(writer);
 
+            // Установка шрифта с поддержкой кириллицы
+            PdfFont font = PdfFontFactory.createFont("fonts\\arial.ttf");
+
             // Установка альбомной ориентации (A4 в горизонтальном положении)
             PageSize pageSize = PageSize.A4.rotate();
             Document document = new Document(pdfDoc, pageSize);
+            document.setFont(font);
 
             // Заголовок отчёта
             Paragraph header = new Paragraph("Финансовый отчёт")
@@ -49,26 +55,27 @@ public class HttpReportPdf extends HttpReport {
             Table table = new Table(UnitValue.createPercentArray(new float[]{15, 15, 10, 10, 30, 20}))
                     .setWidth(UnitValue.createPercentValue(100));
 
-            // Стиль для заголовков таблицы
-            Cell headerCell = new Cell()
-                    .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                    .setBold();
-
             // Заголовки колонок
             String[] headers = {"Дата", "Категория", "Тип", "Сумма", "Описание", "Кошелек"};
             for (String text : headers) {
-                table.addHeaderCell(headerCell.add(new Paragraph(text)));
+                Cell cell = new Cell()
+                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                        .setBold()
+                        .setFont(font)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .add(new Paragraph(text));
+                table.addHeaderCell(cell);
             }
 
             // Заполнение данными
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
             for (FinTransaction transaction : transactions) {
-                table.addCell(new Cell().add(new Paragraph(transaction.getCreateDate().format(dateFormatter))));
-                table.addCell(new Cell().add(new Paragraph(transaction.getCategory().getName())));
-                table.addCell(new Cell().add(new Paragraph(transaction.getTransactionType().getName())));
-                table.addCell(new Cell().add(new Paragraph(String.format("%.2f", transaction.getSum().doubleValue()))));
-                table.addCell(new Cell().add(new Paragraph(transaction.getCommentary() != null ? transaction.getCommentary() : "")));
-                table.addCell(new Cell().add(new Paragraph(transaction.getBankAccount().getAccountNumber())));
+                table.addCell(new Cell().add(new Paragraph(transaction.getCreateDate().format(dateFormatter)).setFont(font)));
+                table.addCell(new Cell().add(new Paragraph(transaction.getCategory().getName()).setFont(font)));
+                table.addCell(new Cell().add(new Paragraph(transaction.getTransactionType().getName()).setFont(font)));
+                table.addCell(new Cell().add(new Paragraph(String.format("%.2f", transaction.getSum().doubleValue())).setFont(font)));
+                table.addCell(new Cell().add(new Paragraph(transaction.getCommentary() != null ? transaction.getCommentary() : "").setFont(font)));
+                table.addCell(new Cell().add(new Paragraph(transaction.getBankAccount().getAccountNumber()).setFont(font)));
             }
 
             document.add(table);

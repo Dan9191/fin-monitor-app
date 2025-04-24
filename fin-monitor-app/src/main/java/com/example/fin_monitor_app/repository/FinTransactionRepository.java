@@ -26,6 +26,7 @@ public interface FinTransactionRepository extends JpaRepository<FinTransaction, 
     @Query("SELECT t FROM FinTransaction t WHERE " +
             "t.bankAccount.user = :user "
             + " AND (t.createDate BETWEEN :startDate AND :endDate) "
+            + " AND (t.sum BETWEEN :minTransactionAmount AND :maxTransactionAmount) "
             + " AND (:bankAccountNumber = 'Все' OR t.bankAccount.accountNumber = :bankAccountNumber) "
             + " AND (:category = 'Все' OR t.category.name = :category) "
             + " AND (:transactionType = 'Все' OR t.transactionType.name = :transactionType) "
@@ -37,8 +38,9 @@ public interface FinTransactionRepository extends JpaRepository<FinTransaction, 
             @Param("category") String category,
             @Param("transactionType") String transactionType,
             @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
-
+            @Param("endDate") LocalDateTime endDate,
+            @Param("minTransactionAmount") Double minTransactionAmount,
+            @Param("maxTransactionAmount") Double maxTransactionAmount);
     @Query("SELECT t FROM FinTransaction t WHERE t.bankAccount.user = :user ORDER BY t.createDate DESC")
     Page<FinTransaction> findTransactionsByUserOrderByCreateDate(@Param("user") User user, Pageable pageable);
 
