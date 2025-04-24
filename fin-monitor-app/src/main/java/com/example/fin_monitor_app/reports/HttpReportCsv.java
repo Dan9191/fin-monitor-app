@@ -11,7 +11,7 @@ import java.util.List;
 
 public class HttpReportCsv extends HttpReport {
     public HttpReportCsv() {
-        super(".csv");
+        super("csv");
     }
 
     @Override

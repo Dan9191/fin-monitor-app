@@ -47,8 +47,13 @@ public class ReportController {
             @RequestParam(required = false) String transactionType,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) Double maxAmount,
             @RequestParam String fileExtension,
             HttpServletResponse response) throws IOException {
+
+        Double minTransactionAmount = minAmount == null || minAmount < 0  ? 0 : minAmount;
+        Double maxTransactionAmount = maxAmount == null ? Double.MAX_VALUE : maxAmount;
 
         String userName = principal.getName();
         User user = userService.findByLogin(userName);
@@ -58,7 +63,9 @@ public class ReportController {
                 category,
                 transactionType,
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59, 999999));
+                endDate.atTime(23, 59, 59, 999999),
+                minTransactionAmount,
+                maxTransactionAmount);
 
         HttpReport httpReport = HttpReport.createReport(fileExtension);
         httpReport.downloadTransactionDetailsReport(finTransactionsDetails, response);

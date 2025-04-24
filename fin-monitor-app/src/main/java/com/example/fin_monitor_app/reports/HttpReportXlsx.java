@@ -68,6 +68,7 @@ public class HttpReportXlsx extends HttpReport {
             try (ServletOutputStream out = response.getOutputStream()) {
                 workbook.write(out);
                 out.flush();
+                response.flushBuffer();
             }
         }
     }
