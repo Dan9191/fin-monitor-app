@@ -27,6 +27,15 @@
         <div class="col-md-9">
             <h2>Добро пожаловать, <span th:text="${user?.login ?: 'Гость'}"></span>!</h2>
 
+            <div class="mt-3 alert alert-success" th:if="${message != null}">
+                <p><small>Результат выполнения:</small></p>
+                <pre th:text="${message}"></pre>
+            </div>
+
+            <div class="mt-3 alert alert-danger" th:if="${errorMessage != null}">
+                <p><small>Ошибка:</small></p>
+                <pre th:text="${errorMessage != null ? errorMessage : message}"></pre>
+            </div>
             <!-- Карточка с кошельками -->
             <div class="card mt-3">
                 <div class="card-body">

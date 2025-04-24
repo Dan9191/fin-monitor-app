@@ -18,12 +18,10 @@ import java.util.NoSuchElementException;
 
 import com.example.fin_monitor_app.entity.OperationStatus;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import static com.example.fin_monitor_app.model.OperationStatusEnum.NON_REMOVABLE_OPERATION;
 
 /**
  * Сервис работы с финансовыми операциями.
@@ -94,7 +92,16 @@ public class FinTransactionService {
      */
     public void markAsDeleted(Long transactionId) {
         FinTransaction transaction = finTransactionRepository.findById(transactionId)
-                .orElseThrow(() -> new NoSuchElementException("Transaction not found with id: " + transactionId));
+                .orElseThrow(() -> {
+                    log.error("markAsDeleted transaction id {} not found", transactionId);
+                    return new NoSuchElementException("Транзакция не найдена: " + transactionId);
+                });
+
+        OperationStatusEnum statusEnum = OperationStatusEnum.fromId(transaction.getOperationStatus().getId());
+        if (NON_REMOVABLE_OPERATION.contains(statusEnum)) {
+            log.error("Transaction is not deletable: {} ", transactionId);
+            throw new NoSuchElementException("Транзакцию в данном статусе запрещено удалять: " + transactionId);
+        }
 
         OperationStatus deletedStatus = operationStatusCacheService.findById(OperationStatusEnum.DELETED.getId());
         transaction.setOperationStatus(deletedStatus);

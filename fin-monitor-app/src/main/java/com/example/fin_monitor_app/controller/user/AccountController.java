@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -26,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static com.example.fin_monitor_app.model.OperationStatusEnum.DELETED;
@@ -174,9 +176,14 @@ public class AccountController {
             /* Получаем запрос (для получения страницы, так как у нас в двух местах удаление операции есть
              и нужно делать корректный переход)
              */
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
-        finTransactionService.markAsDeleted(id);
+        try {
+            finTransactionService.markAsDeleted(id);
+        } catch (NoSuchElementException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
 
         // Получаем URL предыдущей страницы из заголовка "Referer"
         String referer = request.getHeader("Referer");
