@@ -10,8 +10,13 @@ import com.example.fin_monitor_app.service.cache.CategoryCacheService;
 import com.example.fin_monitor_app.service.cache.OperationStatusCacheService;
 import com.example.fin_monitor_app.service.cache.TransactionTypeService;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -77,7 +82,18 @@ public class FinTransactionService {
     }
 
     /**
-     * Полуцчение операций по пользователю.
+     * Получение операций по кошельку.
+     *
+     * @param bankAccount Кошелек (банковский счет).
+     * @return список транзакций.
+     */
+    public Page<FinTransaction> getFinTransactionsByBankAccount(BankAccount bankAccount, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        return finTransactionRepository.findAllByBankAccount(bankAccount, pageable);
+    }
+
+    /**
+     * Получение операций по пользователю.
      *
      * @param user Пользователь.
      * @return список операций.
@@ -85,11 +101,24 @@ public class FinTransactionService {
     public List<FinTransaction> getFinTransactionsByUser(User user) {
         return finTransactionRepository.findTransactionsByUserOrderByCreateDate(user);
     }
+
+    /**
+     * Получение операций по пользователю с пагинацией.
+     *
+     * @param user Пользователь.
+     * @return список операций.
+     */
+    public Page<FinTransaction> getFinTransactionsByUser(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        return finTransactionRepository.findTransactionsByUserOrderByCreateDate(user, pageable);
+    }
+
     /**
      * Изменение статуса операции
      *
      * @param transactionId id-изменяемой транзакции.
      */
+    @Transactional
     public void markAsDeleted(Long transactionId) {
         FinTransaction transaction = finTransactionRepository.findById(transactionId)
                 .orElseThrow(() -> {
@@ -108,6 +137,22 @@ public class FinTransactionService {
 
         finTransactionRepository.save(transaction);
         log.info("Transaction {} marked as deleted", transactionId);
+    }
+
+    /**
+     * Получение транзакций конкретного кошелька за указанный период.
+     */
+    public List<FinTransaction> getFinTransactionsByBankAccountAndPeriod(BankAccount account,
+                                                                         LocalDateTime startDate,
+                                                                         LocalDateTime endDate) {
+        return finTransactionRepository.findByBankAccountAndCreateDateBetween(account, startDate, endDate);
+    }
+
+    /**
+     * Получение транзакций за указанный период.
+     */
+    public List<FinTransaction> getFinTransactionsByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return finTransactionRepository.findByCreateDateBetween(startDate, endDate);
     }
 
 }

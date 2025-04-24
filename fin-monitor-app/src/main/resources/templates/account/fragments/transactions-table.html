@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-
-<!-- Я решил вынести таблицу в отдельный фрагмент (мне так читать удобнее) -->
-<div th:fragment="transactionsTable(finTransactions)">
-    <table class="table" th:unless="${finTransactions.empty}">
+<div th:fragment="transactionsTable(transactionsPage, currentUri)">
+    <table class="table" th:unless="${transactionsPage.empty}">
+        <!-- Заголовок таблицы -->
         <thead>
         <tr>
             <th>Имя счета</th>
@@ -18,7 +14,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="transaction : ${finTransactions}"
+        <tr th:each="transaction : ${transactionsPage}"
             th:class="${transaction.sum > 0 ? 'income' : 'expense'}"
             class="transaction-row">
             <td th:text="${transaction.bankAccount.accountName}"></td>
@@ -54,7 +50,49 @@
         </tr>
         </tbody>
     </table>
-</div>
 
-</body>
-</html>
+    <!-- Пагинация -->
+    <div th:if="${transactionsPage.totalPages > 1}">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Первая страница -->
+                <li class="page-item" th:classappend="${transactionsPage.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{${currentUri}(page=0)}">Первая</a>
+                </li>
+
+                <!-- Предыдущая страница -->
+                <li class="page-item" th:classappend="${transactionsPage.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{${currentUri}(page=${transactionsPage.number - 1})}">
+                        Предыдущая
+                    </a>
+                </li>
+
+                <!-- Номера страниц -->
+                <li th:each="i : ${#numbers.sequence(0, transactionsPage.totalPages - 1)}"
+                    class="page-item"
+                    th:classappend="${i == transactionsPage.number} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{${currentUri}(page=${i})}"
+                       th:text="${i + 1}"></a>
+                </li>
+
+                <!-- Следующая страница -->
+                <li class="page-item" th:classappend="${transactionsPage.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{${currentUri}(page=${transactionsPage.number + 1})}">
+                        Следующая
+                    </a>
+                </li>
+
+                <!-- Последняя страница -->
+                <li class="page-item" th:classappend="${transactionsPage.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{${currentUri}(page=${transactionsPage.totalPages - 1})}">
+                        Последняя
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -92,12 +92,12 @@
                             Создать операцию
                         </button>
                     </div>
-                    <div class="accounts-scrollable">
-                        <div th:if="${finTransactions.empty}" class="alert alert-info">
+                    <div class="accounts-responsive">
+                        <div th:if="${transactionsPage.empty}" class="alert alert-info">
                             У вас пока нет операций
                         </div>
                         <!-- Фрагмент таблицы транзакций -->
-                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${finTransactions})}"></div>
+                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri})}"></div>
                     </div>
                 </div>
             </div>

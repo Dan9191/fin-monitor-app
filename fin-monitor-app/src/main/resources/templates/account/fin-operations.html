@@ -47,12 +47,12 @@
                             </button>
                     </div>
 
-                    <div class="transactions-container" style="height: 400px; overflow-y: auto;">
-                        <div th:if="${finTransactions.empty}" class="alert alert-info">
+                    <div class="accounts">
+                        <div th:if="${transactionsPage.empty}" class="alert alert-info">
                             У вас пока нет операций
                         </div>
                         <!-- Фрагмент таблицы транзакций -->
-                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${finTransactions})}"></div>
+                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri})}"></div>
                     </div>
                 </div>
             </div>
