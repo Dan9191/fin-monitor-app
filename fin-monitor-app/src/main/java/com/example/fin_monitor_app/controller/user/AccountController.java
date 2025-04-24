@@ -8,8 +8,10 @@ import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,16 +19,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import static com.example.fin_monitor_app.model.OperationStatusEnum.DELETED;
 import static com.example.fin_monitor_app.model.TransactionTypeEnum.INCOME;
 import static com.example.fin_monitor_app.model.TransactionTypeEnum.OUTCOME;
 
@@ -44,10 +51,14 @@ public class AccountController {
 
 
     @GetMapping("/dashboard")
-    public String dashboard(Principal principal, Model model) {
+    public String dashboard(Principal principal,
+                            Model model,
+                            @RequestParam(defaultValue = "0") int page) {
         User user = userService.findByLogin(principal.getName());
         List<BankAccount> accounts = bankAccountService.getBankAccounts(user);
-        List<FinTransaction> finTransactions = finTransactionService.getFinTransactionsByUser(user);
+        Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByUser(user, page, 5);
+        List<FinTransaction> last7DaysTransactions =
+                finTransactionService.getFinTransactionsByPeriod(LocalDateTime.now().minusDays(7), LocalDateTime.now());
 
         List<LocalDate> last7Days = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
@@ -56,7 +67,7 @@ public class AccountController {
 
         // Транзакции с доходами
         List<BigDecimal> incomeTransactionsSum = last7Days.stream()
-                .map(date -> finTransactions.stream()
+                .map(date -> last7DaysTransactions.stream()
                         .filter(t -> t.getCreateDate().toLocalDate().equals(date))
                         .filter(t -> t.getTransactionType().getId().equals(INCOME.getId()))
                         .map(FinTransaction::getSum)
@@ -66,7 +77,7 @@ public class AccountController {
 
         // Транзакции с расходами
         List<BigDecimal> outcomeTransactionsSum = last7Days.stream()
-                .map(date -> finTransactions.stream()
+                .map(date -> last7DaysTransactions.stream()
                         .filter(t -> t.getCreateDate().toLocalDate().equals(date))
                         .filter(t -> t.getTransactionType().getId().equals(OUTCOME.getId()))
                         .map(FinTransaction::getSum)
@@ -81,8 +92,9 @@ public class AccountController {
                 .collect(Collectors.toList());
 
         // Группировка по категориям для операций последней недели
-        Map<String, BigDecimal> transactionsByCategory = finTransactions.stream()
+        Map<String, BigDecimal> transactionsByCategory = last7DaysTransactions.stream()
                 .filter(t -> last7Days.contains(t.getCreateDate().toLocalDate()))
+                .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
@@ -95,7 +107,7 @@ public class AccountController {
 
         model.addAttribute("user", user);
         model.addAttribute("bankAccounts", accounts);
-        model.addAttribute("finTransactions", finTransactions);
+        model.addAttribute("transactionsPage", transactionsPage);
         model.addAttribute("createBankAccountDto", new CreateBankAccountDto());
         model.addAttribute("createFinTransactionDto", new CreateFinTransactionDto());
         model.addAttribute("chartDates", formattedDates);
@@ -104,6 +116,7 @@ public class AccountController {
         model.addAttribute("transactionsByCategory", transactionsByCategory);
         model.addAttribute("expensesSum", expensesSum);
         model.addAttribute("incomeSum", incomeSum);
+        model.addAttribute("currentUri", "/account/dashboard");
         return "account/dashboard";
     }
 
@@ -124,23 +137,31 @@ public class AccountController {
     }
 
     @GetMapping("/account/{id}/operations")
-    public String showAccountOperations(@PathVariable Integer id, Model model) {
+    public String showAccountOperations(@PathVariable Integer id,
+                                        Model model,
+                                        @RequestParam(defaultValue = "0") int page) {
         BankAccount account = bankAccountService.getBankAccountById(id);
 
         if (account == null) {
             return "redirect:/account/dashboard";
         }
 
-        List<FinTransaction> transactions = finTransactionService.getFinTransactionsByBankAccount(account);
+        Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByBankAccount(account, page, 5);
 
+        List<FinTransaction> last30DaysTransactions = finTransactionService.getFinTransactionsByBankAccountAndPeriod(
+                account,
+                LocalDateTime.now().minusDays(30),
+                LocalDateTime.now()
+        );
         List<LocalDate> last30Days = new ArrayList<>();
         for (int i = 29; i >= 0; i--) {
             last30Days.add(LocalDate.now().minusDays(i));
         }
 
         // Группировка по категориям для операций последних 30 дней
-        Map<String, BigDecimal> transactionsByCategory = transactions.stream()
+        Map<String, BigDecimal> transactionsByCategory = last30DaysTransactions.stream()
                 .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
+                .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
@@ -151,8 +172,9 @@ public class AccountController {
                         )
                 ));
 
-        model.addAttribute("finTransactions", transactions);
+        model.addAttribute("transactionsPage", transactionsPage);
         model.addAttribute("transactionsByCategory", transactionsByCategory);
+        model.addAttribute("currentUri", "/account/account/" + id + "/operations");
         return "account/fin-operations";
     }
 
@@ -162,6 +184,26 @@ public class AccountController {
         BankAccount account = bankAccountService.getBankAccountById(id);
         bankAccountService.delete(account);
         return "redirect:/account/dashboard";
+    }
+
+    @PostMapping("/delete-transaction/{id}")
+    public String markTransactionAsDeleted(
+            @PathVariable Long id,
+            /* Получаем запрос (для получения страницы, так как у нас в двух местах удаление операции есть
+             и нужно делать корректный переход)
+             */
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            finTransactionService.markAsDeleted(id);
+        } catch (NoSuchElementException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        // Получаем URL предыдущей страницы из заголовка "Referer"
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/account/dashboard");
     }
 
 }
