@@ -1,5 +1,6 @@
 package com.example.fin_monitor_app.view;
 
+import com.example.fin_monitor_app.entity.PersonType;
 import com.example.fin_monitor_app.model.CategoryEnum;
 import com.example.fin_monitor_app.model.OperationStatusEnum;
 import com.example.fin_monitor_app.model.TransactionTypeEnum;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +23,13 @@ public class CreateFinTransactionDto {
     private String commentary;
     private TransactionTypeEnum transactionType;
 
+    /*Дополнительные поля*/
+    //private PersonType personType;
+    private String senderBank;
+    private String recipientBank;
+    private String recipientTin;
+    private String recipientBankAccount;
+    private String recipientTelephoneNumber;
+    private String withdrawalAccount;
+    private LocalDateTime createDate;
 }

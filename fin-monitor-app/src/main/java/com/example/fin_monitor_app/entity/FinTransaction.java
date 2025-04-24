@@ -2,6 +2,7 @@ package com.example.fin_monitor_app.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.processing.Pattern;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,10 @@ public class FinTransaction {
     @JoinColumn(name = "bank_account_id", nullable = false)
     private BankAccount bankAccount;
 
+    /*@ManyToOne
+    @JoinColumn(name = "person_type_id")
+    private PersonType personType;*/
+
     @ManyToOne
     @JoinColumn(name = "transaction_type_id", nullable = false)
     private TransactionType transactionType;
@@ -47,6 +52,9 @@ public class FinTransaction {
 
     @Column(name = "recipient_bank_account", length = 20)
     private String recipientBankAccount;
+
+    @Column(name = "withdrawal_account", length = 20)
+    private String withdrawalAccount;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

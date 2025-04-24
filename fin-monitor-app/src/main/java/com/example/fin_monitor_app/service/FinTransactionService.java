@@ -54,6 +54,10 @@ public class FinTransactionService {
     public void save(CreateFinTransactionDto createFinTransactionDto) {
         FinTransaction finTransaction = new FinTransaction();
         BankAccount bankAccount = bankAccountRepository.findByAccountName(createFinTransactionDto.getBankAccountName());
+        if (bankAccount == null) {
+            log.error("BankAccount is name {} not found", createFinTransactionDto.getBankAccountName());
+            throw new NoSuchElementException("Кошелек не найдена: " + createFinTransactionDto.getBankAccountName());
+        }
 
         finTransaction.setBankAccount(bankAccount);
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
@@ -66,6 +70,16 @@ public class FinTransactionService {
         finTransaction.setOperationStatus(
                 operationStatusCacheService.findById(createFinTransactionDto.getOperationStatus().getId())
         );
+
+        // дополнительные поля для операции
+        finTransaction.setSenderBank(createFinTransactionDto.getSenderBank()); //Банк отправителя
+        finTransaction.setRecipientBank(createFinTransactionDto.getRecipientBank()); //Банк получателя
+        finTransaction.setRecipientBankAccount(createFinTransactionDto.getRecipientBankAccount()); //Расчетный счет получателя
+        finTransaction.setRecipientTelephoneNumber(createFinTransactionDto.getRecipientTelephoneNumber());//Телефон получателя
+        finTransaction.setRecipientTin(createFinTransactionDto.getRecipientTin()); // ИНН получателя
+        finTransaction.setWithdrawalAccount(createFinTransactionDto.getWithdrawalAccount());//Счет списания
+
+
 
         finTransactionRepository.save(finTransaction);
         log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.getAccountName());
