@@ -1,4 +1,4 @@
-<div th:fragment="transactionsTable(transactionsPage, currentUri)">
+<div th:fragment="transactionsTable(transactionsPage, currentUri, bankAccount )">
     <table class="table" th:unless="${transactionsPage.empty}">
         <!-- Заголовок таблицы -->
         <thead>
@@ -29,28 +29,32 @@
                 <!-- Кнопка с проверкой статусов -->
                 <button type="button"
                         class="btn"
-                        th:classappend="${transaction.operationStatus.name == 'Подтвержденная' or
-                        transaction.operationStatus.name == 'В обработке' or
-                        transaction.operationStatus.name == 'Отменена' or
-                        transaction.operationStatus.name == 'Платеж выполнен' or
-                        transaction.operationStatus.name == 'Возврат' or
-                        transaction.operationStatus.name == 'Платеж удален'} ?
+                        th:classappend="${transaction.operationStatus.name != 'Новая'} ?
                         'btn-secondary disabled' : 'btn-danger'"
-                        th:disabled="${transaction.operationStatus.name == 'Подтвержденная' or
-                        transaction.operationStatus.name == 'В обработке' or
-                        transaction.operationStatus.name == 'Отменена' or
-                        transaction.operationStatus.name == 'Платеж выполнен' or
-                        transaction.operationStatus.name == 'Возврат' or
-                        transaction.operationStatus.name == 'Платеж удален'}"
+                        th:disabled="${transaction.operationStatus.name != 'Новая'}"
                         th:attr="data-id=${transaction.id}"
                         onclick="deleteTransaction(this)">
                     Удалить
+                </button>
+                <!-- Кнопка редактирования операции -->
+                <button type="button"
+                        class="btn"
+                        th:classappend="${transaction.operationStatus.name != 'Новая'} ?
+        'btn-secondary disabled' : 'btn-warning'"
+                        th:disabled="${transaction.operationStatus.name != 'Новая'}"
+                        th:attr="data-id=${transaction.id}, data-account-name=${transaction.bankAccount.accountName},
+                                 data-account-balance=${transaction.bankAccount.balance}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editTransactionModal"
+                        onclick="prepareEditForm(this)">
+                    Редактировать
                 </button>
             </td>
         </tr>
         </tbody>
     </table>
-
+    <!-- Подключаем фрагмент для редактирования операции -->
+    <div th:replace="~{/account/fragments/edit-transaction-modal :: editTransactionModal(bankAccounts=${bankAccount})}"></div>
     <!-- Пагинация -->
     <div th:if="${transactionsPage.totalPages > 1}">
         <nav aria-label="Page navigation">

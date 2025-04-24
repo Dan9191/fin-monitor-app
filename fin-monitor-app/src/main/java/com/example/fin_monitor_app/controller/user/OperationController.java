@@ -74,6 +74,8 @@ public class OperationController {
                         )
                 ));
 
+
+        model.addAttribute("bankAccount", account);
         model.addAttribute("transactionsPage", transactionsPage);
         model.addAttribute("transactionsByCategory", transactionsByCategory);
         model.addAttribute("bankAccounts", bankAccountService.getBankAccounts(user));

@@ -10,6 +10,7 @@ import com.example.fin_monitor_app.service.cache.CategoryCacheService;
 import com.example.fin_monitor_app.service.cache.OperationStatusCacheService;
 import com.example.fin_monitor_app.service.cache.TransactionTypeService;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import com.example.fin_monitor_app.view.EditFinTransactionDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -167,6 +168,58 @@ public class FinTransactionService {
      */
     public List<FinTransaction> getFinTransactionsByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
         return finTransactionRepository.findByCreateDateBetween(startDate, endDate);
+    }
+
+    /**
+     * Поиск транзакции по id
+     *
+     * @param transactionId id-изменяемой транзакции.
+     * @return транзакция.
+     */
+    public FinTransaction findTransactionById(Long transactionId) {
+        FinTransaction transaction = finTransactionRepository.findById(transactionId)
+                .orElseThrow(() -> {
+                    log.error("markAsDeleted transaction id {} not found", transactionId);
+                    return new NoSuchElementException("Транзакция не найдена: " + transactionId);
+                });
+        return transaction;
+
+    }
+
+    /**
+     * Внесение изменений в транзакцию
+     *
+     * @param dto dto с внесенными в транзакцию изменениями.
+     */
+    public void update(EditFinTransactionDto dto) {
+        FinTransaction finTransaction = finTransactionRepository.findById((long) dto.getId())
+                .orElseThrow(() -> {
+                    log.error("transaction id {} not found", dto.getId());
+                     return new NoSuchElementException("Transaction not found");
+                });
+
+        BankAccount bankAccount = bankAccountRepository.findByAccountName(dto.getBankAccountName());
+        finTransaction.setBankAccount(bankAccount);
+        finTransaction.setCategory(categoryCacheService.findById(dto.getCategoryEnum().getId()));
+        finTransaction.setSum(dto.getBalance().abs());
+        finTransaction.setCreateDate(LocalDateTime.now());
+        finTransaction.setCommentary(dto.getCommentary());
+        finTransaction.setTransactionType(
+                transactionTypeService.findById(dto.getTransactionType().getId())
+        );
+        finTransaction.setOperationStatus(
+                operationStatusCacheService.findById(dto.getOperationStatus().getId())
+        );
+        // дополнительные поля для операции
+        finTransaction.setSenderBank(dto.getSenderBank()); //Банк отправителя
+        finTransaction.setRecipientBank(dto.getRecipientBank()); //Банк получателя
+        finTransaction.setRecipientBankAccount(dto.getRecipientBankAccount()); //Расчетный счет получателя
+        finTransaction.setRecipientTelephoneNumber(dto.getRecipientTelephoneNumber());//Телефон получателя
+        finTransaction.setRecipientTin(dto.getRecipientTin()); // ИНН получателя
+        finTransaction.setWithdrawalAccount(dto.getWithdrawalAccount());//Счет списания
+
+        finTransactionRepository.save(finTransaction);
+        log.info("Transaction id: {} updated", dto.getId());
     }
 
 }

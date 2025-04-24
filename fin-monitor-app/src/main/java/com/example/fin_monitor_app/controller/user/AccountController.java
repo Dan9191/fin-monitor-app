@@ -3,23 +3,23 @@ package com.example.fin_monitor_app.controller.user;
 import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.FinTransaction;
 import com.example.fin_monitor_app.entity.User;
+import com.example.fin_monitor_app.model.CategoryEnum;
+import com.example.fin_monitor_app.model.OperationStatusEnum;
+import com.example.fin_monitor_app.model.TransactionTypeEnum;
+import com.example.fin_monitor_app.repository.FinTransactionRepository;
 import com.example.fin_monitor_app.service.BankAccountService;
 import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import com.example.fin_monitor_app.view.EditFinTransactionDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -104,7 +104,6 @@ public class AccountController {
                                 BigDecimal::add
                         )
                 ));
-
         model.addAttribute("user", user);
         model.addAttribute("bankAccounts", accounts);
         model.addAttribute("transactionsPage", transactionsPage);
@@ -130,10 +129,12 @@ public class AccountController {
     }
 
     @PostMapping("/create-fin-transaction")
-    public String createFinTransaction(@ModelAttribute CreateFinTransactionDto createFinTransactionDto) {
+    public String createFinTransaction(@ModelAttribute CreateFinTransactionDto createFinTransactionDto,  HttpServletRequest request) {
 
         finTransactionService.save(createFinTransactionDto);
-        return "redirect:/account/dashboard";
+        // Получаем URL предыдущей страницы из заголовка "Referer"
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/account/dashboard");
     }
 
     @PostMapping("/delete-account/{id}") // Изменили на POST
@@ -163,5 +164,30 @@ public class AccountController {
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/account/dashboard");
     }
+    @GetMapping("/transaction/{id}")
+    @ResponseBody
+    public EditFinTransactionDto getTransactionData(@PathVariable Long id) {
+        FinTransaction transaction = finTransactionService.findTransactionById(id);
+        EditFinTransactionDto dto = new EditFinTransactionDto();
+        dto.setId(transaction.getId());
+        dto.setBankAccountName(transaction.getBankAccount().getAccountName());
+        dto.setTransactionType(TransactionTypeEnum.fromId(transaction.getTransactionType().getId()));
+        dto.setCategoryEnum(CategoryEnum.fromId(transaction.getCategory().getId()));
+        dto.setOperationStatus(OperationStatusEnum.fromId(transaction.getOperationStatus().getId()));
+        dto.setBalance(transaction.getSum());
+        dto.setCommentary(transaction.getCommentary());
 
+        return dto;
+    }
+
+    @PostMapping("/edit-fin-transaction/{id}")
+    public String editFinTransaction(@PathVariable int id,
+                                     @ModelAttribute EditFinTransactionDto editFinTransactionDto,
+                                     HttpServletRequest request) {
+        editFinTransactionDto.setId(id);
+        finTransactionService.update(editFinTransactionDto);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/account/dashboard");
+    }
 }
