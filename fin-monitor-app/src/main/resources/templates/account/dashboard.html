@@ -64,7 +64,7 @@
                             <tbody>
                             <tr th:each="account : ${bankAccounts}">
                                 <td>
-                                    <a th:href="@{/account/account/{id}/operations(id=${account.id})}" th:text="${account.accountNumber}"></a>
+                                    <a th:href="@{/operations/{id}(id=${account.id})}" th:text="${account.accountNumber}"></a>
                                 </td>
                                 <td th:text="${account.accountName}"></td>
                                 <td th:text="${account.balance}"></td>

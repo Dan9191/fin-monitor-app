@@ -136,48 +136,6 @@ public class AccountController {
         return "redirect:/account/dashboard";
     }
 
-    @GetMapping("/account/{id}/operations")
-    public String showAccountOperations(@PathVariable Integer id,
-                                        Model model,
-                                        @RequestParam(defaultValue = "0") int page) {
-        BankAccount account = bankAccountService.getBankAccountById(id);
-
-        if (account == null) {
-            return "redirect:/account/dashboard";
-        }
-
-        Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByBankAccount(account, page, 5);
-
-        List<FinTransaction> last30DaysTransactions = finTransactionService.getFinTransactionsByBankAccountAndPeriod(
-                account,
-                LocalDateTime.now().minusDays(30),
-                LocalDateTime.now()
-        );
-        List<LocalDate> last30Days = new ArrayList<>();
-        for (int i = 29; i >= 0; i--) {
-            last30Days.add(LocalDate.now().minusDays(i));
-        }
-
-        // Группировка по категориям для операций последних 30 дней
-        Map<String, BigDecimal> transactionsByCategory = last30DaysTransactions.stream()
-                .filter(t -> last30Days.contains(t.getCreateDate().toLocalDate()))
-                .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
-                .filter(t -> t.getCategory() != null)
-                .collect(Collectors.groupingBy(
-                        t -> t.getCategory().getName(),
-                        Collectors.reducing(
-                                BigDecimal.ZERO,
-                                FinTransaction::getSum,
-                                BigDecimal::add
-                        )
-                ));
-
-        model.addAttribute("transactionsPage", transactionsPage);
-        model.addAttribute("transactionsByCategory", transactionsByCategory);
-        model.addAttribute("currentUri", "/account/account/" + id + "/operations");
-        return "account/fin-operations";
-    }
-
     @PostMapping("/delete-account/{id}") // Изменили на POST
     public String deleteAccount(
             @PathVariable Integer id) {
