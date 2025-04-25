@@ -2,6 +2,7 @@ package com.example.fin_monitor_app.utils;
 
 import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.FinTransaction;
+import com.example.fin_monitor_app.entity.OperationStatus;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
@@ -49,5 +50,15 @@ public class FinTransactionSpecifications {
 
     public static Specification<FinTransaction> amountTo(BigDecimal amountTo) {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("sum"), amountTo);
+    }
+
+    public static Specification<FinTransaction> hasStatusIds(List<Integer> statusIds) {
+        return (root, query, cb) -> {
+            if (statusIds == null || statusIds.isEmpty()) {
+                return null;
+            }
+            Join<FinTransaction, OperationStatus> statusJoin = root.join("operationStatus");
+            return statusJoin.get("id").in(statusIds);
+        };
     }
 }

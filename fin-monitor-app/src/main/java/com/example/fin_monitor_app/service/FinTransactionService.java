@@ -199,6 +199,7 @@ public class FinTransactionService {
      */
     public Page<FinTransaction> getFilteredTransactions(
             List<Integer> bankAccountIds,
+            List<Integer> statusIds,
             LocalDateTime dateFrom,
             LocalDateTime dateTo,
             BigDecimal minAmount,
@@ -221,6 +222,10 @@ public class FinTransactionService {
 
         if (maxAmount != null) {
             spec = spec.and(FinTransactionSpecifications.amountTo(maxAmount));
+        }
+
+        if (statusIds != null && !statusIds.isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasStatusIds(statusIds));
         }
 
         return finTransactionRepository.findAll(spec, PageRequest.of(page, size));

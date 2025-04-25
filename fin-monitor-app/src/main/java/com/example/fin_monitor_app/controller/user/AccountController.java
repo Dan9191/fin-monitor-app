@@ -62,6 +62,7 @@ public class AccountController {
 
         Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
                 accounts.stream().map(BankAccount::getId).toList(),
+                filter.getStatusIds(),
                 filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
                 filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
                 filter.getAmountFrom(),

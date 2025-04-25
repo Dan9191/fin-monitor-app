@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class TransactionFilterDto {
@@ -16,10 +17,7 @@ public class TransactionFilterDto {
 
     private BigDecimal amountFrom;
     private BigDecimal amountTo;
-//    private String transactionType;
-//    private String status;
-//    private String category;
-   //   private List<CategoryEnum> categoryEnum;
+    private List<Integer> statusIds;
 
     public boolean hasFilters() {
         return dateFrom != null || dateTo != null || amountFrom != null || amountTo != null;
