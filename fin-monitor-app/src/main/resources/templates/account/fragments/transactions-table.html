@@ -62,32 +62,20 @@
                                 th:selected="${filter?.categoryIds != null && filter.categoryIds.contains(category.id)}">
                         </option>
                     </select>
-                    <small class="text-muted">Выберите один или несколько статусов</small>
+                    <small class="text-muted">Выберите один или несколько категорий</small>
                 </div>
-<!--                <div class="row mb-3">-->
-<!--                    <div class="col-md-4">-->
-<!--                        <label class="form-label">Тип операции:</label>-->
-<!--                        <select class="form-select" name="transactionType">-->
-<!--                            <option value="">Все</option>-->
-<!--                            <option th:each="type : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"-->
-<!--                                    th:value="${type.name()}"-->
-<!--                                    th:text="${type.getLabel()}"-->
-<!--                                    th:selected="${filter?.transactionType == type.name()}">-->
-<!--                            </option>-->
-<!--                        </select>-->
-<!--                    </div>-->
 
-<!--                    <div class="col-md-4">-->
-<!--                        <label class="form-label">Категория:</label>-->
-<!--                        <select class="form-select" name="category">-->
-<!--                            <option value="">Все</option>-->
-<!--                            <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"-->
-<!--                                    th:value="${category.name()}"-->
-<!--                                    th:text="${category.getLabel()}"-->
-<!--                                    th:selected="${filter?.category == category.name()}">-->
-<!--                            </option>-->
-<!--                        </select>-->
-<!--                </div>-->
+                <div class="col-md-4">
+                    <label class="form-label" for="transactionTypeIds">Типы транзакции:</label>
+                    <select id="transactionTypeIds" class="form-select" name="transactionTypeIds" multiple>
+                        <option th:each="transactionType : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"
+                                th:value="${transactionType.id}"
+                                th:text="${transactionType.getLabel()}"
+                                th:selected="${filter?.transactionTypeIds != null && filter.transactionTypeIds.contains(transactionType.id)}">
+                        </option>
+                    </select>
+                    <small class="text-muted">Выберите один или несколько типов тразнакций</small>
+                </div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary me-2">
@@ -169,19 +157,21 @@
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
                                 statusIds=${filter?.statusIds},
-                                categoryIds=${filter?.categoryIds})}">Первая</a>
+                                categoryIds=${filter?.categoryIds},
+                                transactionTypeIds=${filter?.transactionTypeIds})}">Первая</a>
                 </li>
 
                 <!-- Предыдущая страница -->
                 <li class="page-item" th:classappend="${transactionsPage.first} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{${currentUri}(page=0,
+                       th:href="@{${currentUri}(page=${transactionsPage.number - 1},
                                 dateFrom=${filter?.dateFrom},
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
                                 statusIds=${filter?.statusIds},
-                                categoryIds=${filter?.categoryIds})}">Первая</a>
+                                categoryIds=${filter?.categoryIds},
+                                transactionTypeIds=${filter?.transactionTypeIds})}">Предыдущая</a>
                 </li>
 
                 <!-- Номера страниц -->
@@ -195,7 +185,8 @@
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
                                 statusIds=${filter?.statusIds},
-                                categoryIds=${filter?.categoryIds})}"
+                                categoryIds=${filter?.categoryIds},
+                                transactionTypeIds=${filter?.transactionTypeIds})}"
                        th:text="${i + 1}"></a>
                 </li>
 
@@ -208,7 +199,8 @@
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
                                 statusIds=${filter?.statusIds},
-                                categoryIds=${filter?.categoryIds})}">Следующая</a>
+                                categoryIds=${filter?.categoryIds},
+                                transactionTypeIds=${filter?.transactionTypeIds})}">Следующая</a>
                 </li>
 
                 <!-- Последняя страница -->
@@ -220,7 +212,8 @@
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
                                 statusIds=${filter?.statusIds},
-                                categoryIds=${filter?.categoryIds})}">Последняя</a>
+                                categoryIds=${filter?.categoryIds},
+                                transactionTypeIds=${filter?.transactionTypeIds})}">Последняя</a>
                 </li>
             </ul>
         </nav>

@@ -19,6 +19,7 @@ public class TransactionFilterDto {
     private BigDecimal amountTo;
     private List<Integer> statusIds;
     private List<Integer> categoryIds;
+    private List<Integer> transactionTypeIds;
 
     public boolean hasFilters() {
         return dateFrom != null || dateTo != null || amountFrom != null || amountTo != null;

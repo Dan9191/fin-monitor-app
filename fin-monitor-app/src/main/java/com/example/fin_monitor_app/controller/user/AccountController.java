@@ -65,6 +65,7 @@ public class AccountController {
                 accounts.stream().map(BankAccount::getId).toList(),
                 filter.getStatusIds(),
                 filter.getCategoryIds(),
+                filter.getTransactionTypeIds(),
                 filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
                 filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
                 filter.getAmountFrom(),

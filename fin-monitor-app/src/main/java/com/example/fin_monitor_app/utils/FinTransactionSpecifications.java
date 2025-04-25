@@ -4,6 +4,7 @@ import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.Category;
 import com.example.fin_monitor_app.entity.FinTransaction;
 import com.example.fin_monitor_app.entity.OperationStatus;
+import com.example.fin_monitor_app.entity.TransactionType;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
@@ -70,6 +71,16 @@ public class FinTransactionSpecifications {
             }
             Join<FinTransaction, Category> statusJoin = root.join("category");
             return statusJoin.get("id").in(categoryIds);
+        };
+    }
+
+    public static Specification<FinTransaction> hasTransactionTypeIds(List<Integer> transactionTypeIds) {
+        return (root, query, cb) -> {
+            if (transactionTypeIds == null || transactionTypeIds.isEmpty()) {
+                return null;
+            }
+            Join<FinTransaction, TransactionType> statusJoin = root.join("transactionType");
+            return statusJoin.get("id").in(transactionTypeIds);
         };
     }
 }

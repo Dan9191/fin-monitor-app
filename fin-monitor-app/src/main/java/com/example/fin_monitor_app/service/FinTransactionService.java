@@ -201,6 +201,7 @@ public class FinTransactionService {
             List<Integer> bankAccountIds,
             List<Integer> statusIds,
             List<Integer> categoryIds,
+            List<Integer> transactionTypeIds,
             LocalDateTime dateFrom,
             LocalDateTime dateTo,
             BigDecimal minAmount,
@@ -231,6 +232,10 @@ public class FinTransactionService {
 
         if (categoryIds != null && !categoryIds.isEmpty()) {
             spec = spec.and(FinTransactionSpecifications.hasCategoryIds(categoryIds));
+        }
+
+        if (transactionTypeIds != null && !transactionTypeIds.isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasTransactionTypeIds(transactionTypeIds));
         }
 
         return finTransactionRepository.findAll(spec, PageRequest.of(page, size));

@@ -33,7 +33,7 @@ public class BankAccountService {
     public BankAccountCreationResult save(CreateBankAccountDto createBankAccountDto, User user) {
         BankAccount bankAccount = bankAccountRepository.findByAccountName(createBankAccountDto.getBankAccountName());
         if (bankAccount != null) {
-            log.error("BankAccount is name {} not found", createBankAccountDto.getBankAccountName());
+            log.error("BankAccount is name {} already exists", createBankAccountDto.getBankAccountName());
             return BankAccountCreationResult.failure("Кошелек с таким именем уже существует");
         }
         PersonTypeEnum personTypeEnum = createBankAccountDto.getPersonType();
