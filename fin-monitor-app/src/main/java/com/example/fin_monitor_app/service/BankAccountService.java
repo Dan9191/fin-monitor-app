@@ -2,6 +2,7 @@ package com.example.fin_monitor_app.service;
 
 import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.User;
+import com.example.fin_monitor_app.model.BankAccountCreationResult;
 import com.example.fin_monitor_app.model.PersonTypeEnum;
 import com.example.fin_monitor_app.repository.BankAccountRepository;
 import com.example.fin_monitor_app.service.cache.PersonTypeCacheService;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Сервис по работе с счетами.
@@ -28,7 +30,12 @@ public class BankAccountService {
 
 
     @Transactional
-    public void save(CreateBankAccountDto createBankAccountDto, User user) {
+    public BankAccountCreationResult save(CreateBankAccountDto createBankAccountDto, User user) {
+        BankAccount bankAccount = bankAccountRepository.findByAccountName(createBankAccountDto.getBankAccountName());
+        if (bankAccount != null) {
+            log.error("BankAccount is name {} not found", createBankAccountDto.getBankAccountName());
+            return BankAccountCreationResult.failure("Кошелек с таким именем уже существует");
+        }
         PersonTypeEnum personTypeEnum = createBankAccountDto.getPersonType();
         BankAccount account = new BankAccount();
         account.setUser(user);
@@ -39,6 +46,7 @@ public class BankAccountService {
                 createBankAccountDto.getBalance() : BigDecimal.ZERO);
         log.info("save bank account: {} for {} ", account.getAccountName(), user.getName());
         bankAccountRepository.save(account);
+        return BankAccountCreationResult.successful();
     }
 
     @Transactional

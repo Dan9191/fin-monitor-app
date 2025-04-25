@@ -3,6 +3,7 @@ package com.example.fin_monitor_app.controller.user;
 import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.FinTransaction;
 import com.example.fin_monitor_app.entity.User;
+import com.example.fin_monitor_app.model.BankAccountCreationResult;
 import com.example.fin_monitor_app.model.CategoryEnum;
 import com.example.fin_monitor_app.model.OperationStatusEnum;
 import com.example.fin_monitor_app.model.TransactionTypeEnum;
@@ -63,13 +64,11 @@ public class AccountController {
         Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
                 accounts.stream().map(BankAccount::getId).toList(),
                 filter.getStatusIds(),
+                filter.getCategoryIds(),
                 filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
                 filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
                 filter.getAmountFrom(),
                 filter.getAmountTo(),
-//                transactionType,
-//                status,
-//                category,
                 page,
                 5
         );
@@ -137,9 +136,13 @@ public class AccountController {
     @PostMapping("/create-account")
     public String createAccount(
             @ModelAttribute CreateBankAccountDto createBankAccountDto,
-            Principal principal) {
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
         User user = userService.findByLogin(principal.getName());
-        bankAccountService.save(createBankAccountDto, user);
+        BankAccountCreationResult bankAccountCreationResult = bankAccountService.save(createBankAccountDto, user);
+        if (!bankAccountCreationResult.isCreated()) {
+            redirectAttributes.addFlashAttribute("errorMessage", bankAccountCreationResult.errorMessage());
+        }
         return "redirect:/account/dashboard";
     }
 

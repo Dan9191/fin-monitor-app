@@ -53,6 +53,17 @@
                     </select>
                     <small class="text-muted">Выберите один или несколько статусов</small>
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="categoryIds">Категории:</label>
+                    <select id="categoryIds" class="form-select" name="categoryIds" multiple>
+                        <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"
+                                th:value="${category.id}"
+                                th:text="${category.getLabel()}"
+                                th:selected="${filter?.categoryIds != null && filter.categoryIds.contains(category.id)}">
+                        </option>
+                    </select>
+                    <small class="text-muted">Выберите один или несколько статусов</small>
+                </div>
 <!--                <div class="row mb-3">-->
 <!--                    <div class="col-md-4">-->
 <!--                        <label class="form-label">Тип операции:</label>-->
@@ -157,7 +168,8 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
-                                statusIds=${filter?.statusIds})}">Первая</a>
+                                statusIds=${filter?.statusIds},
+                                categoryIds=${filter?.categoryIds})}">Первая</a>
                 </li>
 
                 <!-- Предыдущая страница -->
@@ -168,7 +180,8 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
-                                statusIds=${filter?.statusIds})}">Первая</a>
+                                statusIds=${filter?.statusIds},
+                                categoryIds=${filter?.categoryIds})}">Первая</a>
                 </li>
 
                 <!-- Номера страниц -->
@@ -181,7 +194,8 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
-                                statusIds=${filter?.statusIds})}"
+                                statusIds=${filter?.statusIds},
+                                categoryIds=${filter?.categoryIds})}"
                        th:text="${i + 1}"></a>
                 </li>
 
@@ -193,7 +207,8 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
-                                statusIds=${filter?.statusIds})}">Следующая</a>
+                                statusIds=${filter?.statusIds},
+                                categoryIds=${filter?.categoryIds})}">Следующая</a>
                 </li>
 
                 <!-- Последняя страница -->
@@ -204,7 +219,8 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
-                                statusIds=${filter?.statusIds})}">Последняя</a>
+                                statusIds=${filter?.statusIds},
+                                categoryIds=${filter?.categoryIds})}">Последняя</a>
                 </li>
             </ul>
         </nav>

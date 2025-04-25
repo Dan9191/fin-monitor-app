@@ -60,7 +60,7 @@ public class FinTransactionService {
         BankAccount bankAccount = bankAccountRepository.findByAccountName(createFinTransactionDto.getBankAccountName());
         if (bankAccount == null) {
             log.error("BankAccount is name {} not found", createFinTransactionDto.getBankAccountName());
-            throw new NoSuchElementException("Кошелек не найдена: " + createFinTransactionDto.getBankAccountName());
+            throw new NoSuchElementException("Кошелек не найден: " + createFinTransactionDto.getBankAccountName());
         }
 
         finTransaction.setBankAccount(bankAccount);
@@ -200,6 +200,7 @@ public class FinTransactionService {
     public Page<FinTransaction> getFilteredTransactions(
             List<Integer> bankAccountIds,
             List<Integer> statusIds,
+            List<Integer> categoryIds,
             LocalDateTime dateFrom,
             LocalDateTime dateTo,
             BigDecimal minAmount,
@@ -226,6 +227,10 @@ public class FinTransactionService {
 
         if (statusIds != null && !statusIds.isEmpty()) {
             spec = spec.and(FinTransactionSpecifications.hasStatusIds(statusIds));
+        }
+
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasCategoryIds(categoryIds));
         }
 
         return finTransactionRepository.findAll(spec, PageRequest.of(page, size));

@@ -1,6 +1,7 @@
 package com.example.fin_monitor_app.utils;
 
 import com.example.fin_monitor_app.entity.BankAccount;
+import com.example.fin_monitor_app.entity.Category;
 import com.example.fin_monitor_app.entity.FinTransaction;
 import com.example.fin_monitor_app.entity.OperationStatus;
 import jakarta.persistence.criteria.Join;
@@ -59,6 +60,16 @@ public class FinTransactionSpecifications {
             }
             Join<FinTransaction, OperationStatus> statusJoin = root.join("operationStatus");
             return statusJoin.get("id").in(statusIds);
+        };
+    }
+
+    public static Specification<FinTransaction> hasCategoryIds(List<Integer> categoryIds) {
+        return (root, query, cb) -> {
+            if (categoryIds == null || categoryIds.isEmpty()) {
+                return null;
+            }
+            Join<FinTransaction, Category> statusJoin = root.join("category");
+            return statusJoin.get("id").in(categoryIds);
         };
     }
 }
