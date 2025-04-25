@@ -160,9 +160,11 @@
                 <!-- Предыдущая страница -->
                 <li class="page-item" th:classappend="${transactionsPage.first} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{${currentUri}(page=${transactionsPage.number - 1})}">
-                        Предыдущая
-                    </a>
+                       th:href="@{${currentUri}(page=0,
+                                dateFrom=${filter?.dateFrom},
+                                dateTo=${filter?.dateTo},
+                                amountFrom=${filter?.amountFrom},
+                                amountTo=${filter?.amountTo})}">Первая</a>
                 </li>
 
                 <!-- Номера страниц -->
@@ -170,24 +172,32 @@
                     class="page-item"
                     th:classappend="${i == transactionsPage.number} ? 'active'">
                     <a class="page-link"
-                       th:href="@{${currentUri}(page=${i})}"
+                       th:href="@{${currentUri}(page=${i},
+                                dateFrom=${filter?.dateFrom},
+                                dateTo=${filter?.dateTo},
+                                amountFrom=${filter?.amountFrom},
+                                amountTo=${filter?.amountTo})}"
                        th:text="${i + 1}"></a>
                 </li>
 
                 <!-- Следующая страница -->
                 <li class="page-item" th:classappend="${transactionsPage.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{${currentUri}(page=${transactionsPage.number + 1})}">
-                        Следующая
-                    </a>
+                       th:href="@{${currentUri}(page=${transactionsPage.number + 1},
+                                dateFrom=${filter?.dateFrom},
+                                dateTo=${filter?.dateTo},
+                                amountFrom=${filter?.amountFrom},
+                                amountTo=${filter?.amountTo})}">Следующая</a>
                 </li>
 
                 <!-- Последняя страница -->
                 <li class="page-item" th:classappend="${transactionsPage.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{${currentUri}(page=${transactionsPage.totalPages - 1})}">
-                        Последняя
-                    </a>
+                       th:href="@{${currentUri}(page=${transactionsPage.totalPages - 1},
+                                dateFrom=${filter?.dateFrom},
+                                dateTo=${filter?.dateTo},
+                                amountFrom=${filter?.amountFrom},
+                                amountTo=${filter?.amountTo})}">Последняя</a>
                 </li>
             </ul>
         </nav>
