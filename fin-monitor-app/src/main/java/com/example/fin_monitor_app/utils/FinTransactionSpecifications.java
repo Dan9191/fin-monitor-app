@@ -1,0 +1,53 @@
+package com.example.fin_monitor_app.utils;
+
+import com.example.fin_monitor_app.entity.BankAccount;
+import com.example.fin_monitor_app.entity.FinTransaction;
+import jakarta.persistence.criteria.Join;
+import org.springframework.data.jpa.domain.Specification;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Настройка спецификаций по поиску операций.
+ */
+public class FinTransactionSpecifications {
+
+    public static Specification<FinTransaction> byBankAccountIds(List<Integer> bankAccountIds) {
+        return (root, query, cb) -> {
+            if (bankAccountIds == null || bankAccountIds.isEmpty()) {
+                return null; // Не применяем фильтрацию, если список пуст
+            }
+
+            Join<FinTransaction, BankAccount> bankAccountJoin = root.join("bankAccount");
+            return bankAccountJoin.get("id").in(bankAccountIds);
+        };
+    }
+
+    public static Specification<FinTransaction> dateFrom(LocalDateTime dateFrom) {
+        return (root, query, cb) ->
+                dateFrom == null ? null : cb.greaterThanOrEqualTo(root.get("createDate"), dateFrom);
+    }
+
+    public static Specification<FinTransaction> dateTo(LocalDateTime dateTo) {
+        return (root, query, cb) ->
+                dateTo == null ? null : cb.lessThanOrEqualTo(root.get("createDate"), dateTo);
+    }
+
+    public static Specification<FinTransaction> amountBetween(BigDecimal min, BigDecimal max) {
+        return (root, query, cb) -> {
+            if (min == null && max == null) return null;
+            if (min != null && max != null) return cb.between(root.get("sum"), min, max);
+            if (min != null) return cb.greaterThanOrEqualTo(root.get("sum"), min);
+            return cb.lessThanOrEqualTo(root.get("sum"), max);
+        };
+    }
+
+    public static Specification<FinTransaction> amountFrom(BigDecimal amountFrom) {
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("sum"), amountFrom);
+    }
+
+    public static Specification<FinTransaction> amountTo(BigDecimal amountTo) {
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("sum"), amountTo);
+    }
+}

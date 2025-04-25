@@ -6,13 +6,13 @@ import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.model.CategoryEnum;
 import com.example.fin_monitor_app.model.OperationStatusEnum;
 import com.example.fin_monitor_app.model.TransactionTypeEnum;
-import com.example.fin_monitor_app.repository.FinTransactionRepository;
 import com.example.fin_monitor_app.service.BankAccountService;
 import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
 import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import com.example.fin_monitor_app.view.EditFinTransactionDto;
+import com.example.fin_monitor_app.view.TransactionFilterDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,12 +53,25 @@ public class AccountController {
     @GetMapping("/dashboard")
     public String dashboard(Principal principal,
                             Model model,
-                            @RequestParam(defaultValue = "0") int page) {
+                            @RequestParam(defaultValue = "0") int page,
+                            @ModelAttribute TransactionFilterDto filter) {
         User user = userService.findByLogin(principal.getName());
         List<BankAccount> accounts = bankAccountService.getBankAccounts(user);
-        Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByUser(user, page, 5);
         List<FinTransaction> last7DaysTransactions =
                 finTransactionService.getFinTransactionsByPeriod(LocalDateTime.now().minusDays(7), LocalDateTime.now());
+
+        Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
+                accounts.stream().map(BankAccount::getId).toList(),
+                filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
+                filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
+                filter.getAmountFrom(),
+                filter.getAmountTo(),
+//                transactionType,
+//                status,
+//                category,
+                page,
+                5
+        );
 
         List<LocalDate> last7Days = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
@@ -116,6 +129,7 @@ public class AccountController {
         model.addAttribute("expensesSum", expensesSum);
         model.addAttribute("incomeSum", incomeSum);
         model.addAttribute("currentUri", "/account/dashboard");
+        model.addAttribute("filter", filter);
         return "account/dashboard";
     }
 

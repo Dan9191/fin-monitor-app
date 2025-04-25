@@ -1,9 +1,102 @@
-<div th:fragment="transactionsTable(transactionsPage, currentUri, bankAccount )">
+<div th:fragment="transactionsTable(transactionsPage, currentUri, bankAccount, filter)">
+
+    <div class="mb-3">
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filterCollapse" aria-expanded="false"
+                aria-controls="filterCollapse">
+            <i class="bi bi-funnel"></i> Фильтры
+        </button>
+    </div>
+    <!-- Форма фильтрации -->
+    <div class="collapse mb-3" id="filterCollapse">
+        <div class="card card-body">
+            <form th:action="@{${currentUri}}" method="get">
+                <input type="hidden" name="page" value="0">
+
+                <!-- Фильтр по дате -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Дата от:</label>
+                        <input type="date" name="dateFrom" class="form-control"
+                               th:value="${filter?.dateFrom}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Дата до:</label>
+                        <input type="date" name="dateTo" class="form-control"
+                               th:value="${filter?.dateTo}">
+                    </div>
+                </div>
+
+                <!-- Фильтр по сумме -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Сумма от:</label>
+                        <input type="number" step="0.01" name="amountFrom" class="form-control"
+                               th:value="${filter?.amountFrom}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Сумма до:</label>
+                        <input type="number" step="0.01" name="amountTo" class="form-control"
+                               th:value="${filter?.amountTo}">
+                    </div>
+                </div>
+
+<!--                &lt;!&ndash; Фильтр по типу/статусу/категории &ndash;&gt;-->
+<!--                <div class="row mb-3">-->
+<!--                    <div class="col-md-4">-->
+<!--                        <label class="form-label">Тип операции:</label>-->
+<!--                        <select class="form-select" name="transactionType">-->
+<!--                            <option value="">Все</option>-->
+<!--                            <option th:each="type : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"-->
+<!--                                    th:value="${type.name()}"-->
+<!--                                    th:text="${type.getLabel()}"-->
+<!--                                    th:selected="${filter?.transactionType == type.name()}">-->
+<!--                            </option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+
+<!--                    <div class="col-md-4">-->
+<!--                        <label class="form-label">Статус:</label>-->
+<!--                        <select class="form-select" name="status">-->
+<!--                            <option value="">Все</option>-->
+<!--                            <option th:each="status : ${T(com.example.fin_monitor_app.model.OperationStatusEnum).values()}"-->
+<!--                                    th:value="${status.name()}"-->
+<!--                                    th:text="${status.getLabel()}"-->
+<!--                                    th:selected="${filter?.status == status.name()}">-->
+<!--                            </option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+
+<!--                    <div class="col-md-4">-->
+<!--                        <label class="form-label">Категория:</label>-->
+<!--                        <select class="form-select" name="category">-->
+<!--                            <option value="">Все</option>-->
+<!--                            <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"-->
+<!--                                    th:value="${category.name()}"-->
+<!--                                    th:text="${category.getLabel()}"-->
+<!--                                    th:selected="${filter?.category == category.name()}">-->
+<!--                            </option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Применить
+                    </button>
+                    <a th:href="@{${currentUri}}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Сбросить
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица операций -->
     <table class="table" th:unless="${transactionsPage.empty}">
-        <!-- Заголовок таблицы -->
-        <thead>
+        <thead class="table-light">
         <tr>
-            <th>Имя счета</th>
+            <th>Счет</th>
             <th>Тип счета</th>
             <th>Комментарий</th>
             <th>Категория</th>

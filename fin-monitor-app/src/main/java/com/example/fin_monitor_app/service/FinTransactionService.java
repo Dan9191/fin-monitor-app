@@ -11,6 +11,7 @@ import com.example.fin_monitor_app.service.cache.OperationStatusCacheService;
 import com.example.fin_monitor_app.service.cache.TransactionTypeService;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import com.example.fin_monitor_app.view.EditFinTransactionDto;
+import com.example.fin_monitor_app.utils.FinTransactionSpecifications;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import com.example.fin_monitor_app.entity.OperationStatus;
@@ -92,40 +95,9 @@ public class FinTransactionService {
      * @param bankAccount Кошелек (банковский счет).
      * @return список транзакций.
      */
-    public List<FinTransaction> getFinTransactionsByBankAccount(BankAccount bankAccount) {
-        return finTransactionRepository.findAllByBankAccount(bankAccount);
-    }
-
-    /**
-     * Получение операций по кошельку.
-     *
-     * @param bankAccount Кошелек (банковский счет).
-     * @return список транзакций.
-     */
     public Page<FinTransaction> getFinTransactionsByBankAccount(BankAccount bankAccount, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
         return finTransactionRepository.findAllByBankAccount(bankAccount, pageable);
-    }
-
-    /**
-     * Получение операций по пользователю.
-     *
-     * @param user Пользователь.
-     * @return список операций.
-     */
-    public List<FinTransaction> getFinTransactionsByUser(User user) {
-        return finTransactionRepository.findTransactionsByUserOrderByCreateDate(user);
-    }
-
-    /**
-     * Получение операций по пользователю с пагинацией.
-     *
-     * @param user Пользователь.
-     * @return список операций.
-     */
-    public Page<FinTransaction> getFinTransactionsByUser(User user, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
-        return finTransactionRepository.findTransactionsByUserOrderByCreateDate(user, pageable);
     }
 
     /**
@@ -220,6 +192,38 @@ public class FinTransactionService {
 
         finTransactionRepository.save(finTransaction);
         log.info("Transaction id: {} updated", dto.getId());
+    }
+
+    /**
+     * Поиск записей по фильтрам + пагинация.
+     */
+    public Page<FinTransaction> getFilteredTransactions(
+            List<Integer> bankAccountIds,
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
+            int page, int size
+    ) {
+        Specification<FinTransaction> spec = Specification.where(
+                FinTransactionSpecifications.byBankAccountIds(bankAccountIds)
+        );
+        if (dateFrom != null) {
+            spec = spec.and(FinTransactionSpecifications.dateFrom(dateFrom));
+        }
+
+        if (dateTo != null) {
+            spec = spec.and(FinTransactionSpecifications.dateTo(dateTo));
+        }
+        if (minAmount != null) {
+            spec = spec.and(FinTransactionSpecifications.amountFrom(minAmount));
+        }
+
+        if (maxAmount != null) {
+            spec = spec.and(FinTransactionSpecifications.amountTo(maxAmount));
+        }
+
+        return finTransactionRepository.findAll(spec, PageRequest.of(page, size));
     }
 
 }

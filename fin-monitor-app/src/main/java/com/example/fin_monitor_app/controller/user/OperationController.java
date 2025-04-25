@@ -6,8 +6,8 @@ import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.service.BankAccountService;
 import com.example.fin_monitor_app.service.FinTransactionService;
 import com.example.fin_monitor_app.service.UserService;
-import com.example.fin_monitor_app.view.CreateBankAccountDto;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
+import com.example.fin_monitor_app.view.TransactionFilterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -19,6 +19,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class OperationController {
     public String showAccountOperations(@PathVariable Integer accountId,
                                       Model model,
                                       @RequestParam(defaultValue = "0") int page,
+                                      @ModelAttribute TransactionFilterDto filter,
                                       Principal principal) {
         User user = userService.findByLogin(principal.getName());
         BankAccount account = bankAccountService.getBankAccountById(accountId);
@@ -47,8 +49,15 @@ public class OperationController {
         CreateFinTransactionDto createFinTransactionDto = new CreateFinTransactionDto();
         createFinTransactionDto.setBankAccountName(account.getAccountName());
 
-
-        Page<FinTransaction> transactionsPage = finTransactionService.getFinTransactionsByBankAccount(account, page, 5);
+        Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
+                Collections.singletonList(account.getId()),
+                filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
+                filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
+                filter.getAmountFrom(),
+                filter.getAmountTo(),
+                page,
+                5
+        );
         List<FinTransaction> last30DaysTransactions = finTransactionService.getFinTransactionsByBankAccountAndPeriod(
                 account,
                 LocalDateTime.now().minusDays(30),
@@ -82,7 +91,6 @@ public class OperationController {
         model.addAttribute("createFinTransactionDto", createFinTransactionDto);
         model.addAttribute("currentAccountId", accountId);
         model.addAttribute("currentUri", "/operations/" + accountId);
-        
         return "account/fin-operations";
     }
 

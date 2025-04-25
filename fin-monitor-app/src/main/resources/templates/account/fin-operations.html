@@ -53,7 +53,7 @@
                             У вас пока нет операций
                         </div>
                         <!-- Фрагмент таблицы транзакций -->
-                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri}, ${bankAccount})}"></div>
+                        <div th:replace="~{/account/fragments/transactions-table :: transactionsTable(${transactionsPage}, ${currentUri}, ${bankAccount}, ${filter})}"></div>
                     </div>
                 </div>
             </div>
