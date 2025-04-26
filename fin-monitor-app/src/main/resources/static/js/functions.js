@@ -220,6 +220,12 @@ function prepareEditForm(button) {
             document.getElementById('editOperationStatus').value = transaction.operationStatus;
             document.getElementById('editBalance').value = transaction.balance;
             document.getElementById('editCommentary').value = transaction.commentary;
+            document.getElementById('editWithdrawalAccount').value = transaction.withdrawalAccount;
+            document.getElementById('editSenderBank').value = transaction.senderBank;
+            document.getElementById('editRecipientBank').value = transaction.recipientBank;
+            document.getElementById('editRecipientBankAccount').value = transaction.recipientBankAccount;
+            document.getElementById('editRecipientTelephoneNumber').value = transaction.recipientTelephoneNumber;
+            document.getElementById('editRecipientTin').value = transaction.recipientTin;
         })
         .catch(error => alert('Ошибка при редактировании операции: ' + error.message));
 }
