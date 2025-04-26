@@ -8,6 +8,7 @@
         </button>
     </div>
     <!-- Форма фильтрации -->
+
     <div class="collapse mb-3" id="filterCollapse">
         <div class="card card-body">
             <form th:action="@{${currentUri}}" method="get">
@@ -25,6 +26,15 @@
                         <input type="date" name="dateTo" class="form-control"
                                th:value="${filter?.dateTo}">
                     </div>
+                    <div class="col">
+                        <label for="senderBank" class="form-label">Банк отправителя</label>
+                        <input type="text" class="form-control" id="senderBank"
+                               name="senderBank"
+                               th:value="*{filter?.senderBank}"
+                               placeholder="Название банка отправителя (необязательно)">
+                    </div>
+
+
                 </div>
 
                 <!-- Фильтр по сумме -->
@@ -39,22 +49,13 @@
                         <input type="number" step="0.01" name="amountTo" class="form-control"
                                th:value="${filter?.amountTo}">
                     </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="senderBank" class="form-label">Банк отправителя</label>
-                    <input type="text" class="form-control" id="senderBank"
-                           name="senderBank"
-                           th:value="*{filter?.senderBank}"
-                           placeholder="Название банка отправителя (необязательно)">
-                </div>
-
-                <div class="mb-3">
-                    <label for="recipientBank" class="form-label">Банк получателя</label>
-                    <input type="text" class="form-control" id="recipientBank"
-                           name="recipientBank"
-                           th:value="*{filter?.recipientBank}"
-                           placeholder="Название банка получателя (необязательно)">
+                    <div class="col">
+                        <label for="recipientBank" class="form-label">Банк получателя</label>
+                        <input type="text" class="form-control" id="recipientBank"
+                               name="recipientBank"
+                               th:value="*{filter?.recipientBank}"
+                               placeholder="Название банка получателя (необязательно)">
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -68,44 +69,43 @@
                            oninput="this.value=this.value.replace(/\D/g,'')"
                            placeholder="Введите 11 цифр (необязательно)">
                 </div>
-
-
                 <!-- Фильтр по типу/статусу/категории -->
-                <div class="col-md-4">
-                    <label class="form-label" for="statusIds">Статус:</label>
-                    <select id="statusIds" class="form-select" name="statusIds" multiple>
-                        <option th:each="status : ${T(com.example.fin_monitor_app.model.OperationStatusEnum).values()}"
-                                th:value="${status.id}"
-                                th:text="${status.getLabel()}"
-                                th:selected="${filter?.statusIds != null && filter.statusIds.contains(status.id)}">
-                        </option>
-                    </select>
-                    <small class="text-muted">Выберите один или несколько статусов</small>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" for="categoryIds">Категории:</label>
-                    <select id="categoryIds" class="form-select" name="categoryIds" multiple>
-                        <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"
-                                th:value="${category.id}"
-                                th:text="${category.getLabel()}"
-                                th:selected="${filter?.categoryIds != null && filter.categoryIds.contains(category.id)}">
-                        </option>
-                    </select>
-                    <small class="text-muted">Выберите один или несколько категорий</small>
-                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="statusIds">Статус:</label>
+                        <select id="statusIds" class="form-select" name="statusIds" multiple>
+                            <option th:each="status : ${T(com.example.fin_monitor_app.model.OperationStatusEnum).values()}"
+                                    th:value="${status.id}"
+                                    th:text="${status.getLabel()}"
+                                    th:selected="${filter?.statusIds != null && filter.statusIds.contains(status.id)}">
+                            </option>
+                        </select>
+                        <small class="text-muted">Выберите один или несколько статусов</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="categoryIds">Категории:</label>
+                        <select id="categoryIds" class="form-select" name="categoryIds" multiple>
+                            <option th:each="category : ${T(com.example.fin_monitor_app.model.CategoryEnum).values()}"
+                                    th:value="${category.id}"
+                                    th:text="${category.getLabel()}"
+                                    th:selected="${filter?.categoryIds != null && filter.categoryIds.contains(category.id)}">
+                            </option>
+                        </select>
+                        <small class="text-muted">Выберите один или несколько категорий</small>
+                    </div>
 
-                <div class="col-md-4">
-                    <label class="form-label" for="transactionTypeIds">Типы транзакции:</label>
-                    <select id="transactionTypeIds" class="form-select" name="transactionTypeIds" multiple>
-                        <option th:each="transactionType : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"
-                                th:value="${transactionType.id}"
-                                th:text="${transactionType.getLabel()}"
-                                th:selected="${filter?.transactionTypeIds != null && filter.transactionTypeIds.contains(transactionType.id)}">
-                        </option>
-                    </select>
-                    <small class="text-muted">Выберите один или несколько типов тразнакций</small>
+                    <div class="col-md-4">
+                        <label class="form-label" for="transactionTypeIds">Типы транзакции:</label>
+                        <select id="transactionTypeIds" class="form-select" name="transactionTypeIds" multiple>
+                            <option th:each="transactionType : ${T(com.example.fin_monitor_app.model.TransactionTypeEnum).values()}"
+                                    th:value="${transactionType.id}"
+                                    th:text="${transactionType.getLabel()}"
+                                    th:selected="${filter?.transactionTypeIds != null && filter.transactionTypeIds.contains(transactionType.id)}">
+                            </option>
+                        </select>
+                        <small class="text-muted">Выберите один или несколько типов тразнакций</small>
+                    </div>
                 </div>
-
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="bi bi-funnel"></i> Применить
