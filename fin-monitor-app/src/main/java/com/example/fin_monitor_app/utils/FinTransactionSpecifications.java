@@ -18,9 +18,6 @@ public class FinTransactionSpecifications {
 
     public static Specification<FinTransaction> byBankAccountIds(List<Integer> bankAccountIds) {
         return (root, query, cb) -> {
-            if (bankAccountIds == null || bankAccountIds.isEmpty()) {
-                return null; // Не применяем фильтрацию, если список пуст
-            }
 
             Join<FinTransaction, BankAccount> bankAccountJoin = root.join("bankAccount");
             return bankAccountJoin.get("id").in(bankAccountIds);
