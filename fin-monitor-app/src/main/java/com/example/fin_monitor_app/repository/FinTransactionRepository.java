@@ -39,5 +39,9 @@ public interface FinTransactionRepository extends
 
     List<FinTransaction> findByBankAccountAndCreateDateBetween(BankAccount account, LocalDateTime startDate, LocalDateTime endDate);
 
-    List<FinTransaction> findByCreateDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+    @Query("SELECT t FROM FinTransaction t WHERE t.bankAccount.user = :user AND t.createDate BETWEEN :startDate AND :endDate")
+    List<FinTransaction> findByUserAndCreateDateBetween(
+            @Param("user") User user,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

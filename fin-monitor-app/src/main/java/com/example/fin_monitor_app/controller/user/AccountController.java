@@ -59,7 +59,7 @@ public class AccountController {
         User user = userService.findByLogin(principal.getName());
         List<BankAccount> accounts = bankAccountService.getBankAccounts(user);
         List<FinTransaction> last7DaysTransactions =
-                finTransactionService.getFinTransactionsByPeriod(LocalDateTime.now().minusDays(7), LocalDateTime.now());
+                finTransactionService.getFinTransactionsByPeriod(user, LocalDateTime.now().minusDays(7), LocalDateTime.now());
 
         Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
                 accounts.stream().map(BankAccount::getId).toList(),

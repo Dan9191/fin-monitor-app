@@ -139,8 +139,8 @@ public class FinTransactionService {
     /**
      * Получение транзакций за указанный период.
      */
-    public List<FinTransaction> getFinTransactionsByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return finTransactionRepository.findByCreateDateBetween(startDate, endDate);
+    public List<FinTransaction> getFinTransactionsByPeriod(User user, LocalDateTime startDate, LocalDateTime endDate) {
+        return finTransactionRepository.findByUserAndCreateDateBetween(user,startDate, endDate);
     }
 
     /**
