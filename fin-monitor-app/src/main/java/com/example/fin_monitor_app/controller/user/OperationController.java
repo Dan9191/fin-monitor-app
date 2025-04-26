@@ -51,13 +51,7 @@ public class OperationController {
 
         Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
                 Collections.singletonList(account.getId()),
-                filter.getStatusIds(),
-                filter.getCategoryIds(),
-                filter.getTransactionTypeIds(),
-                filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null,
-                filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null,
-                filter.getAmountFrom(),
-                filter.getAmountTo(),
+                filter,
                 page,
                 5
         );

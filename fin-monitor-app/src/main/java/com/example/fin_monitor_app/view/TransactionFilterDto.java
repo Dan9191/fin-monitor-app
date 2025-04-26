@@ -20,6 +20,9 @@ public class TransactionFilterDto {
     private List<Integer> statusIds;
     private List<Integer> categoryIds;
     private List<Integer> transactionTypeIds;
+    private String senderBank;
+    private String recipientBank;
+    private String recipientTin;
 
     public boolean hasFilters() {
         return dateFrom != null || dateTo != null || amountFrom != null || amountTo != null;

@@ -83,4 +83,22 @@ public class FinTransactionSpecifications {
             return statusJoin.get("id").in(transactionTypeIds);
         };
     }
+
+    public static Specification<FinTransaction> bySenderBank(String senderBank) {
+        return (root, query, cb) ->
+                senderBank == null || senderBank.isEmpty() ? null :
+                        cb.like(cb.lower(root.get("senderBank")), "%" + senderBank.toLowerCase() + "%");
+    }
+
+    public static Specification<FinTransaction> byRecipientBank(String recipientBank) {
+        return (root, query, cb) ->
+                recipientBank == null || recipientBank.isEmpty() ? null :
+                        cb.like(cb.lower(root.get("recipientBank")), "%" + recipientBank.toLowerCase() + "%");
+    }
+
+    public static Specification<FinTransaction> byRecipientTin(String recipientTin) {
+        return (root, query, cb) ->
+                recipientTin == null || recipientTin.isEmpty() ? null :
+                        cb.equal(root.get("recipientTin"), recipientTin);
+    }
 }

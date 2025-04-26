@@ -12,6 +12,7 @@ import com.example.fin_monitor_app.service.cache.TransactionTypeService;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import com.example.fin_monitor_app.view.EditFinTransactionDto;
 import com.example.fin_monitor_app.utils.FinTransactionSpecifications;
+import com.example.fin_monitor_app.view.TransactionFilterDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -199,43 +200,50 @@ public class FinTransactionService {
      */
     public Page<FinTransaction> getFilteredTransactions(
             List<Integer> bankAccountIds,
-            List<Integer> statusIds,
-            List<Integer> categoryIds,
-            List<Integer> transactionTypeIds,
-            LocalDateTime dateFrom,
-            LocalDateTime dateTo,
-            BigDecimal minAmount,
-            BigDecimal maxAmount,
+            TransactionFilterDto filter,
             int page, int size
     ) {
         Specification<FinTransaction> spec = Specification.where(
                 FinTransactionSpecifications.byBankAccountIds(bankAccountIds)
         );
+        LocalDateTime dateFrom = filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null;
         if (dateFrom != null) {
             spec = spec.and(FinTransactionSpecifications.dateFrom(dateFrom));
         }
 
+        LocalDateTime dateTo = filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null;
+
         if (dateTo != null) {
             spec = spec.and(FinTransactionSpecifications.dateTo(dateTo));
         }
-        if (minAmount != null) {
-            spec = spec.and(FinTransactionSpecifications.amountFrom(minAmount));
+        if (filter.getAmountFrom() != null) {
+            spec = spec.and(FinTransactionSpecifications.amountFrom(filter.getAmountFrom()));
         }
 
-        if (maxAmount != null) {
-            spec = spec.and(FinTransactionSpecifications.amountTo(maxAmount));
+        if (filter.getAmountTo() != null) {
+            spec = spec.and(FinTransactionSpecifications.amountTo(filter.getAmountTo()));
         }
 
-        if (statusIds != null && !statusIds.isEmpty()) {
-            spec = spec.and(FinTransactionSpecifications.hasStatusIds(statusIds));
+        if (filter.getStatusIds() != null && !filter.getStatusIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasStatusIds(filter.getStatusIds()));
         }
 
-        if (categoryIds != null && !categoryIds.isEmpty()) {
-            spec = spec.and(FinTransactionSpecifications.hasCategoryIds(categoryIds));
+        if (filter.getCategoryIds() != null && !filter.getCategoryIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasCategoryIds(filter.getCategoryIds()));
         }
 
-        if (transactionTypeIds != null && !transactionTypeIds.isEmpty()) {
-            spec = spec.and(FinTransactionSpecifications.hasTransactionTypeIds(transactionTypeIds));
+        if (filter.getTransactionTypeIds() != null && !filter.getTransactionTypeIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasTransactionTypeIds(filter.getTransactionTypeIds()));
+        }
+
+        if (filter.getSenderBank() != null && !filter.getSenderBank().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.bySenderBank(filter.getSenderBank()));
+        }
+        if (filter.getRecipientBank() != null && !filter.getRecipientBank().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.byRecipientBank(filter.getRecipientBank()));
+        }
+        if (filter.getRecipientTin() != null && !filter.getRecipientTin().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.byRecipientTin(filter.getRecipientTin()));
         }
 
         return finTransactionRepository.findAll(spec, PageRequest.of(page, size));

@@ -41,6 +41,35 @@
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <label for="senderBank" class="form-label">Банк отправителя</label>
+                    <input type="text" class="form-control" id="senderBank"
+                           name="senderBank"
+                           th:value="*{filter?.senderBank}"
+                           placeholder="Название банка отправителя (необязательно)">
+                </div>
+
+                <div class="mb-3">
+                    <label for="recipientBank" class="form-label">Банк получателя</label>
+                    <input type="text" class="form-control" id="recipientBank"
+                           name="recipientBank"
+                           th:value="*{filter?.recipientBank}"
+                           placeholder="Название банка получателя (необязательно)">
+                </div>
+
+                <div class="mb-3">
+                    <label for="recipientTin" class="form-label">ИНН получателя</label>
+                    <input type="text" class="form-control" id="recipientTin"
+                           name="recipientTin"
+                           th:value="*{filter?.recipientTin}"
+                           th:attr="data-length=11"
+                           maxlength="11"
+                           pattern="\d{11}|^$"
+                           oninput="this.value=this.value.replace(/\D/g,'')"
+                           placeholder="Введите 11 цифр (необязательно)">
+                </div>
+
+
                 <!-- Фильтр по типу/статусу/категории -->
                 <div class="col-md-4">
                     <label class="form-label" for="statusIds">Статус:</label>
@@ -156,6 +185,9 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
+                                senderBank=${filter?.senderBank},
+                                recipientBank=${filter?.recipientBank},
+                                recipientTin=${filter?.recipientTin},
                                 statusIds=${filter?.statusIds},
                                 categoryIds=${filter?.categoryIds},
                                 transactionTypeIds=${filter?.transactionTypeIds})}">Первая</a>
@@ -169,6 +201,9 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
+                                senderBank=${filter?.senderBank},
+                                recipientBank=${filter?.recipientBank},
+                                recipientTin=${filter?.recipientTin},
                                 statusIds=${filter?.statusIds},
                                 categoryIds=${filter?.categoryIds},
                                 transactionTypeIds=${filter?.transactionTypeIds})}">Предыдущая</a>
@@ -184,6 +219,9 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
+                                senderBank=${filter?.senderBank},
+                                recipientBank=${filter?.recipientBank},
+                                recipientTin=${filter?.recipientTin},
                                 statusIds=${filter?.statusIds},
                                 categoryIds=${filter?.categoryIds},
                                 transactionTypeIds=${filter?.transactionTypeIds})}"
@@ -198,6 +236,9 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
+                                senderBank=${filter?.senderBank},
+                                recipientBank=${filter?.recipientBank},
+                                recipientTin=${filter?.recipientTin},
                                 statusIds=${filter?.statusIds},
                                 categoryIds=${filter?.categoryIds},
                                 transactionTypeIds=${filter?.transactionTypeIds})}">Следующая</a>
@@ -211,6 +252,9 @@
                                 dateTo=${filter?.dateTo},
                                 amountFrom=${filter?.amountFrom},
                                 amountTo=${filter?.amountTo},
+                                senderBank=${filter?.senderBank},
+                                recipientBank=${filter?.recipientBank},
+                                recipientTin=${filter?.recipientTin},
                                 statusIds=${filter?.statusIds},
                                 categoryIds=${filter?.categoryIds},
                                 transactionTypeIds=${filter?.transactionTypeIds})}">Последняя</a>
