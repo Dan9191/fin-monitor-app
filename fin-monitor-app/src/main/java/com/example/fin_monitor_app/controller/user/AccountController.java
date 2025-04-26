@@ -189,6 +189,12 @@ public class AccountController {
         dto.setOperationStatus(OperationStatusEnum.fromId(transaction.getOperationStatus().getId()));
         dto.setBalance(transaction.getSum());
         dto.setCommentary(transaction.getCommentary());
+        dto.setWithdrawalAccount(transaction.getWithdrawalAccount());
+        dto.setRecipientBankAccount(transaction.getRecipientBankAccount());
+        dto.setSenderBank(transaction.getSenderBank());
+        dto.setRecipientTelephoneNumber(transaction.getRecipientTelephoneNumber());
+        dto.setRecipientBank(transaction.getRecipientBank());
+        dto.setRecipientTin(transaction.getRecipientTin());
 
         return dto;
     }

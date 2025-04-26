@@ -57,38 +57,115 @@
                         <label for="editCommentary" class="form-label">Комментарий</label>
                         <textarea class="form-control" id="editCommentary" name="commentary"></textarea>
                     </div>
+                    <!-- Формирование аккордеона для раскрытия доп полей -->
 
                     <div class="mb-3">
-                        <label for="editSenderBank" class="form-label">Банк отправитель</label>
-                        <textarea class="form-control" id="editSenderBank" name="senderBank"></textarea>
+                        <div class="accordion" id="recipientAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingRecipientDetails">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseRecipientDetails" aria-expanded="false"
+                                            aria-controls="collapseRecipientDetails">
+                                        Дополнительные реквизиты получателя
+                                    </button>
+                                </h2>
+                                <div id="collapseRecipientDetails" class="accordion-collapse collapse"
+                                     aria-labelledby="headingRecipientDetails" data-bs-parent="#recipientAccordion">
+                                    <div class="accordion-body">
+
+                                        <div class="mb-3">
+                                            <label for="editSenderBank" class="form-label">Банк отправитель</label>
+                                            <input type="text" step="0.01" class="form-control" id="editSenderBank"
+                                                   name="senderBank">
+                                            <small class="text-muted">Необязательное поле</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editWithdrawalAccount" class="form-label">Счет списания</label>
+                                            <input type="text" step="0.01" class="form-control" id="editWithdrawalAccount"
+                                                   name="withdrawalAccount">
+                                            <small class="text-muted">Необязательное поле</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editRecipientBank" class="form-label">Банк получателя</label>
+                                            <input type="text" step="0.01" class="form-control" id="editRecipientBank"
+                                                   name="recipientBank">
+                                            <small class="text-muted">Необязательное поле</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editRecipientBankAccount" class="form-label">Расчетный счет получателя</label>
+                                            <input type="text" step="0.01" class="form-control" id="editRecipientBankAccount"
+                                                   name="recipientBankAccount">
+                                            <small class="text-muted">Необязательное поле</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editRecipientTin" class="form-label">ИНН получателя</label>
+                                            <input type="text" class="form-control" id="editRecipientTin"
+                                                   name="recipientTin"
+                                                   th:attr="data-length=11"
+                                                   maxlength="11"
+                                                   pattern="\d{11}|^$"
+                                                   oninput="this.value=this.value.replace(/\D/g,''); validateTin(this)"
+                                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                   placeholder="Введите 11 цифр (необязательно)">
+                                            <small class="text-muted">Необязательное поле</small>
+                                            <div class="invalid-feedback">Ошибка ввода ИНН</div>
+
+                                            <script>
+                                                function validateTin(input) {
+                                                    const tin = input.value;
+                                                    const errorDiv = input.nextElementSibling.nextElementSibling; // Получаем div с ошибкой
+
+                                                    // Проверяем, что поле либо пустое, либо содержит ровно 11 цифр
+                                                    if (tin === '' || /^\d{11}$/.test(tin)) {
+                                                        input.classList.remove('is-invalid');
+                                                        errorDiv.style.display = 'none';
+                                                    } else {
+                                                        input.classList.add('is-invalid');
+                                                        errorDiv.style.display = 'block';
+                                                    }
+                                                }
+
+                                                // Также можно добавить проверку при потере фокуса
+                                                document.getElementById('editRecipientTin').addEventListener('blur', function() {
+                                                    validateTin(this);
+                                                });
+                                            </script>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editRecipientTelephoneNumber" class="form-label">Телефон получателя</label>
+                                            <input type="tel" class="form-control" id="editRecipientTelephoneNumber"
+                                                   name="recipientTelephoneNumber"
+                                                   pattern="\+7\s?[\(]?\d{3}[\)]?\s?\d{3}[\-]?\d{2}[\-]?\d{2}"
+                                                   oninput="this.value = phoneMask(this.value)"
+                                                   placeholder="+7 (XXX) XXX-XX-XX">
+                                            <small class="text-muted">Необязательное поле</small>
+                                            <div class="invalid-feedback">Введите корректный номер телефона</div>
+                                        </div>
+
+                                        <script th:inline="javascript">
+                                            /*<![CDATA[*/
+                                            function phoneMask(value) {
+                                                return value.replace(/\D/g, '')
+                                                    .replace(/^(\d)/, '+$1')
+                                                    .replace(/^(\+\d)(\d)/, '$1 $2')
+                                                    .replace(/^(\+\d\s)(\d{3})(\d)/, '$1($2) $3')
+                                                    .replace(/^(\+\d\s\(\d{3}\)\s)(\d{3})(\d)/, '$1$2-$3')
+                                                    .replace(/^(\+\d\s\(\d{3}\)\s\d{3}\-)(\d{2})(\d)/, '$1$2-$3')
+                                                    .substring(0, 18);
+                                            }
+                                            /*]]>*/
+                                        </script>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="editWithdrawalAccount" class="form-label">Счет списания</label>
-                        <textarea class="form-control" id="editWithdrawalAccount" name="withdrawalAccount"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editRecipientBank" class="form-label">Банк получателя</label>
-                        <textarea class="form-control" id="editRecipientBank" name="recipientBank"></textarea>
-                    </div>
-
-
-                    <div class="mb-3">
-                        <label for="editRecipientBankAccount" class="form-label">Расчетный счет получателя</label>
-                        <textarea class="form-control" id="editRecipientBankAccount" name="recipientBankAccount"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editRecipientTin" class="form-label">ИНН получателя</label>
-                        <textarea class="form-control" id="editRecipientTin" name="recipientTin"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editRecipientTelephoneNumber" class="form-label">Телефон получателя</label>
-                        <input type="tel" class="form-control" id="editRecipientTelephoneNumber"  name="recipientTelephoneNumber">
-                    </div>
-
 
                 </div>
                 <div class="modal-footer">
