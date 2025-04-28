@@ -176,8 +176,6 @@ public class FinTransactionService {
                      return new NoSuchElementException("Transaction not found");
                 });
 
-        BankAccount bankAccount = bankAccountRepository.findByAccountName(dto.getBankAccountName());
-        finTransaction.setBankAccount(bankAccount);
         finTransaction.setCategory(categoryCacheService.findById(dto.getCategoryEnum().getId()));
         finTransaction.setSum(dto.getBalance().abs());
         finTransaction.setCreateDate(LocalDateTime.now());

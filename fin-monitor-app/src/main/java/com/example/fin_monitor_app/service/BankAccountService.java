@@ -31,7 +31,7 @@ public class BankAccountService {
 
     @Transactional
     public BankAccountCreationResult save(CreateBankAccountDto createBankAccountDto, User user) {
-        BankAccount bankAccount = bankAccountRepository.findByAccountName(createBankAccountDto.getBankAccountName());
+        BankAccount bankAccount = bankAccountRepository.findByAccountNameAndUser(createBankAccountDto.getBankAccountName(), user);
         if (bankAccount != null) {
             log.error("BankAccount is name {} already exists", createBankAccountDto.getBankAccountName());
             return BankAccountCreationResult.failure("Кошелек с таким именем уже существует");

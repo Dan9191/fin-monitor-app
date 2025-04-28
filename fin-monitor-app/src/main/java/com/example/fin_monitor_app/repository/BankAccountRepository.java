@@ -10,7 +10,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
 
     List<BankAccount> findAllByUser(User user);
 
-    BankAccount findByAccountName(String bankAccountName);
+    BankAccount findByAccountNameAndUser(String bankAccountName, User user);
 
     BankAccount findById(long id);
 
