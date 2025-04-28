@@ -66,7 +66,11 @@ public class FinTransactionService {
 
         finTransaction.setBankAccount(bankAccount);
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
-        finTransaction.setSum(createFinTransactionDto.getBalance().abs());
+        if(createFinTransactionDto.getTransactionType().getLabel().equals("Списание")) {
+            finTransaction.setSum(createFinTransactionDto.getBalance().negate());
+        }
+        else
+            finTransaction.setSum(createFinTransactionDto.getBalance());
         finTransaction.setCreateDate(LocalDateTime.now());
         finTransaction.setCommentary(createFinTransactionDto.getCommentary());
         finTransaction.setTransactionType(
