@@ -84,7 +84,7 @@ public class OperationController {
         model.addAttribute("bankAccount", account);
         model.addAttribute("transactionsPage", transactionsPage);
         model.addAttribute("transactionsByCategory", transactionsByCategory);
-        model.addAttribute("bankAccounts", bankAccountService.getBankAccounts(user));
+        model.addAttribute("bankAccounts", Collections.singletonList(account));
         model.addAttribute("createFinTransactionDto", createFinTransactionDto);
         model.addAttribute("currentAccountId", accountId);
         model.addAttribute("currentUri", "/operations/" + accountId);

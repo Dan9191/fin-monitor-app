@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class CreateFinTransactionDto {
 
     private String bankAccountName;
+    private Long bankAccountId;
     private CategoryEnum categoryEnum;
     private OperationStatusEnum operationStatus;
     private BigDecimal balance;

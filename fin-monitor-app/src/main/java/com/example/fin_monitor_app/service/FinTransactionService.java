@@ -30,6 +30,7 @@ import com.example.fin_monitor_app.entity.OperationStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.fin_monitor_app.model.OperationStatusEnum.NON_REMOVABLE_OPERATION;
 
@@ -54,17 +55,17 @@ public class FinTransactionService {
     /**
      * Сохранение операции.
      *
-     * @param createFinTransactionDto Модель с данными о операции.
+     * @param createFinTransactionDto Модель с данными операции.
      */
     public void save(CreateFinTransactionDto createFinTransactionDto) {
         FinTransaction finTransaction = new FinTransaction();
-        BankAccount bankAccount = bankAccountRepository.findByAccountName(createFinTransactionDto.getBankAccountName());
-        if (bankAccount == null) {
+        Optional<BankAccount> bankAccount = bankAccountRepository.findById(createFinTransactionDto.getBankAccountId());
+        if (bankAccount.isEmpty()) {
             log.error("BankAccount is name {} not found", createFinTransactionDto.getBankAccountName());
             throw new NoSuchElementException("Кошелек не найден: " + createFinTransactionDto.getBankAccountName());
         }
 
-        finTransaction.setBankAccount(bankAccount);
+        finTransaction.setBankAccount(bankAccount.get());
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
         if(createFinTransactionDto.getTransactionType().getLabel().equals("Списание")) {
             finTransaction.setSum(createFinTransactionDto.getBalance().negate());
@@ -91,7 +92,7 @@ public class FinTransactionService {
 
 
         finTransactionRepository.save(finTransaction);
-        log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.getAccountName());
+        log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.get().getAccountName());
     }
 
     /**

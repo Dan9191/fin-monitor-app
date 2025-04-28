@@ -10,20 +10,13 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="bankAccount" class="form-label">Кошелек</label>
-                        <div th:if="${#lists.size(bankAccounts) == 1}">
-                            <input type="hidden" th:field="*{bankAccountName}"
-                                   th:value="${bankAccounts.accountName}">
-                            <input type="text" class="form-control"
-                                   th:value="${bankAccounts.accountName + ' (' + bankAccounts.balance + ')'}"
-                                   disabled>
 
-                        </div>
-                        <select th:unless="${#lists.size(bankAccounts) == 1}"
-                                class="form-select" id="bankAccount"
-                                th:field="*{bankAccountName}" required>
+
+                        <select class="form-select" id="bankAccount"
+                                th:field="*{bankAccountId}" required>
                             <option value="">Выберите кошелек</option>
                             <option th:each="account : ${bankAccounts}"
-                                    th:value="${account.accountName}"
+                                    th:value="${account.id}"
                                     th:text="${account.accountName + ' (' + account.balance + ')'}"></option>
                         </select>
                     </div>
