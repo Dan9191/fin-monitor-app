@@ -89,8 +89,6 @@ public class FinTransactionService {
         finTransaction.setRecipientTin(createFinTransactionDto.getRecipientTin()); // ИНН получателя
         finTransaction.setWithdrawalAccount(createFinTransactionDto.getWithdrawalAccount());//Счет списания
 
-
-
         finTransactionRepository.save(finTransaction);
         log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.get().getAccountName());
     }
