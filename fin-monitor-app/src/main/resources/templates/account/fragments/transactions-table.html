@@ -3,7 +3,8 @@
     <div class="mb-3">
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
                 data-bs-target="#filterCollapse" aria-expanded="false"
-                aria-controls="filterCollapse">
+                aria-controls="filterCollapse"
+        >
             <i class="bi bi-funnel"></i> Фильтры
         </button>
     </div>
@@ -141,33 +142,35 @@
             <td th:text="${transaction.commentary} ?: 'Без комментария'"></td>
             <td th:text="${transaction.category.name}"></td>
             <td th:text="${transaction.sum > 0 ? '+' : ''} + ${#numbers.formatDecimal(transaction.sum, 1, 2)}"></td>
-            <td th:text="${#temporals.format(transaction.createDate, 'dd.MM.yyyy HH:mm')}"></td>
+            <td th:text="${#temporals.format(transaction.createDate, 'dd.MM.yyyy ')}"></td>
             <!-- Добавил статус в список -->
             <td th:text="${transaction.operationStatus.name}"></td>
             <td>
-                <!-- Кнопка с проверкой статусов -->
-                <button type="button"
-                        class="btn"
-                        th:classappend="${transaction.operationStatus.name != 'Новая'} ?
+                <div class="btn-cont">
+                    <!-- Кнопка с проверкой статусов -->
+                    <button type="button"
+                            class="btn mb-1"
+                            th:classappend="${transaction.operationStatus.name != 'Новая'} ?
                         'btn-secondary disabled' : 'btn-danger'"
-                        th:disabled="${transaction.operationStatus.name != 'Новая'}"
-                        th:attr="data-id=${transaction.id}"
-                        onclick="deleteTransaction(this)">
-                    Удалить
-                </button>
-                <!-- Кнопка редактирования операции -->
-                <button type="button"
-                        class="btn"
-                        th:classappend="${transaction.operationStatus.name != 'Новая'} ?
+                            th:disabled="${transaction.operationStatus.name != 'Новая'}"
+                            th:attr="data-id=${transaction.id}"
+                            onclick="deleteTransaction(this)">
+                        Удалить
+                    </button>
+                    <!-- Кнопка редактирования операции -->
+                    <button type="button"
+                            class="btn"
+                            th:classappend="${transaction.operationStatus.name != 'Новая'} ?
         'btn-secondary disabled' : 'btn-warning'"
-                        th:disabled="${transaction.operationStatus.name != 'Новая'}"
-                        th:attr="data-id=${transaction.id}, data-account-name=${transaction.bankAccount.accountName},
+                            th:disabled="${transaction.operationStatus.name != 'Новая'}"
+                            th:attr="data-id=${transaction.id}, data-account-name=${transaction.bankAccount.accountName},
                                  data-account-balance=${transaction.bankAccount.balance}"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editTransactionModal"
-                        onclick="prepareEditForm(this)">
-                    Редактировать
-                </button>
+                            data-bs-toggle="modal"
+                            data-bs-target="#editTransactionModal"
+                            onclick="prepareEditForm(this)">
+                        Редактировать
+                    </button>
+                </div>
             </td>
         </tr>
         </tbody>
