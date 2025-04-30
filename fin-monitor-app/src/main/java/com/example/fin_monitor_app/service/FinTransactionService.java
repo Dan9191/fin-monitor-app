@@ -247,7 +247,12 @@ public class FinTransactionService {
             spec = spec.and(FinTransactionSpecifications.byRecipientTin(filter.getRecipientTin()));
         }
 
-        return finTransactionRepository.findAll(spec, PageRequest.of(page, size));
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createDate")
+        );
+        return finTransactionRepository.findAll(spec, pageRequest);
     }
 
 }
