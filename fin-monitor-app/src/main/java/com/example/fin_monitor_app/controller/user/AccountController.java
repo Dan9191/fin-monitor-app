@@ -157,6 +157,21 @@ public class AccountController {
                 .filter(t -> t.getOperationStatus().getId() == OperationStatusEnum.DELETED.getId())
                 .count();
 
+        // Суммарные доходы и расходы
+        BigDecimal totalIncome = last7DaysTransactions.stream()
+                .filter(t -> t.getTransactionType().getId() == INCOME.getId())
+                .map(FinTransaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalOutcome = last7DaysTransactions.stream()
+                .filter(t -> t.getTransactionType().getId() == OUTCOME.getId())
+                .map(FinTransaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Map<String, BigDecimal> incomeOutcomeComparison = new LinkedHashMap<>();
+        incomeOutcomeComparison.put("Поступления", totalIncome);
+        incomeOutcomeComparison.put("Списания", totalOutcome);
+
         Map<String, Long> transactionStatusStats = new LinkedHashMap<>();
         transactionStatusStats.put("Выполненные", completedCount);
         transactionStatusStats.put("Удаленные", deletedCount);
@@ -176,6 +191,7 @@ public class AccountController {
         model.addAttribute("senderBanksStats", senderBanksStats);
         model.addAttribute("recipientBanksStats", recipientBanksStats);
         model.addAttribute("transactionStatusStats", transactionStatusStats);
+        model.addAttribute("incomeOutcomeComparison", incomeOutcomeComparison);
 
         return "account/dashboard";
     }

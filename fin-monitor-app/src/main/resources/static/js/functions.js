@@ -392,3 +392,61 @@ function initTransactionStatusChart(chartId, data) {
     createChart();
     window.addEventListener('resize', createChart);
 }
+
+function initIncomeOutcomeChart(chartId, data) {
+    const ctx = document.getElementById(chartId);
+    let chartInstance = null;
+
+    function createChart() {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = Object.keys(data);
+        const amounts = Object.values(data);
+
+        chartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: amounts,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.7)', // Зеленый для доходов
+                        'rgba(255, 99, 132, 0.7)'  // Красный для расходов
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value.toLocaleString('ru-RU')} ₽ (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createChart();
+    window.addEventListener('resize', createChart);
+}

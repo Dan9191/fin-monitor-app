@@ -110,6 +110,24 @@
                         </div>
                     </div>
 
+                    <!-- Виджет сравнения доходов и расходов -->
+                    <div class="col-12">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Сравнение доходов и расходов</h4>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="incomeOutcomeChart"></canvas>
+                            </div>
+                            <div class="text-center mt-3">
+                                <h5>Всего поступлений:
+                                    <span class="text-success" th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span> ₽
+                                </h5>
+                                <h5>Всего списаний:
+                                    <span class="text-danger" th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span> ₽
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -269,7 +287,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/functions.js"></script>
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const dates = [[${chartDates}]];
         const incomeTransactionsSum = [[${incomeTransactionsSum}]];
         const outcomeTransactionsSum = [[${outcomeTransactionsSum}]];
@@ -277,6 +295,7 @@
         const senderBanksStats = [[${senderBanksStats}]];
         const recipientBanksStats = [[${recipientBanksStats}]];
         const transactionStatusStats = [[${transactionStatusStats}]];
+        const incomeOutcomeComparison = [[${incomeOutcomeComparison}]];
 
         initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false);
         initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true);
@@ -284,6 +303,7 @@
         initBankStatsChart('senderBanksChart', senderBanksStats, 'Топ-5 банков отправителей');
         initBankStatsChart('recipientBanksChart', recipientBanksStats, 'Топ-5 банков получателей');
         initTransactionStatusChart('transactionStatusChart', transactionStatusStats);
+        initIncomeOutcomeChart('incomeOutcomeChart', incomeOutcomeComparison);
     });
 </script>
 
