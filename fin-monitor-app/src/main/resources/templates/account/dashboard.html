@@ -77,6 +77,29 @@
                         </div>
                     </div>
 
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title text-center mb-3">Топ-5 банков отправителей</h4>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="senderBanksChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title text-center mb-3">Топ-5 банков получателей</h4>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="recipientBanksChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -241,10 +264,14 @@
         const incomeTransactionsSum = [[${incomeTransactionsSum}]];
         const outcomeTransactionsSum = [[${outcomeTransactionsSum}]];
         const categoryData = [[${transactionsByCategory}]];
-        // Инициализация графиков
+        const senderBanksStats = [[${senderBanksStats}]];
+        const recipientBanksStats = [[${recipientBanksStats}]];
+
         initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false);
         initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true);
         initCategoryChart('categoryChart', categoryData);
+        initBankStatsChart('senderBanksChart', senderBanksStats, 'Топ-5 банков отправителей');
+        initBankStatsChart('recipientBanksChart', recipientBanksStats, 'Топ-5 банков получателей');
     });
 </script>
 

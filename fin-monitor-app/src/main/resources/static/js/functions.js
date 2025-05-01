@@ -274,3 +274,59 @@ function prepareEditForm(button) {
         })
         .catch(error => alert('Ошибка при редактировании операции: ' + error.message));
 }
+
+function initBankStatsChart(chartId, data, title) {
+    const ctx = document.getElementById(chartId);
+    let chartInstance = null;
+
+    function createChart() {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = Object.keys(data);
+        const counts = Object.values(data);
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество операций',
+                    data: counts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createChart();
+    window.addEventListener('resize', createChart);
+}

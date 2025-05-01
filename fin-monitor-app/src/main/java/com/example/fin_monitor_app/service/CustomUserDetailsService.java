@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Возвращаем UserDetails без проверки пароля
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(),
-                user.getPassword(), // Должен быть захэшированный пароль
+                user.getPassword(),
                 Collections.emptyList());
     }
 }

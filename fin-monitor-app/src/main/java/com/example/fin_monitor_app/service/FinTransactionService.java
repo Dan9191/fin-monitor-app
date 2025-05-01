@@ -18,12 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import com.example.fin_monitor_app.entity.OperationStatus;
@@ -94,17 +92,6 @@ public class FinTransactionService {
     }
 
     /**
-     * Получение операций по кошельку.
-     *
-     * @param bankAccount Кошелек (банковский счет).
-     * @return список транзакций.
-     */
-    public Page<FinTransaction> getFinTransactionsByBankAccount(BankAccount bankAccount, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
-        return finTransactionRepository.findAllByBankAccount(bankAccount, pageable);
-    }
-
-    /**
      * Изменение статуса операции
      *
      * @param transactionId id-изменяемой транзакции.
@@ -153,12 +140,11 @@ public class FinTransactionService {
      * @return транзакция.
      */
     public FinTransaction findTransactionById(Long transactionId) {
-        FinTransaction transaction = finTransactionRepository.findById(transactionId)
+        return finTransactionRepository.findById(transactionId)
                 .orElseThrow(() -> {
-                    log.error("markAsDeleted transaction id {} not found", transactionId);
+                    log.error("Transaction id {} not found", transactionId);
                     return new NoSuchElementException("Транзакция не найдена: " + transactionId);
                 });
-        return transaction;
 
     }
 

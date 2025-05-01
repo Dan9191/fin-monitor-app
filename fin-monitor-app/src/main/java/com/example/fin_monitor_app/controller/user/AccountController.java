@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -112,6 +113,41 @@ public class AccountController {
                                 BigDecimal::add
                         )
                 ));
+
+        // Статистика по банкам отправителям
+        Map<String, Long> senderBanksStats = last7DaysTransactions.stream()
+                .filter(t -> t.getSenderBank() != null && !t.getSenderBank().isEmpty())
+                .collect(Collectors.groupingBy(
+                        FinTransaction::getSenderBank,
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+
+        // Статистика по банкам получателям
+        Map<String, Long> recipientBanksStats = last7DaysTransactions.stream()
+                .filter(t -> t.getRecipientBank() != null && !t.getRecipientBank().isEmpty())
+                .collect(Collectors.groupingBy(
+                        FinTransaction::getRecipientBank,
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+
         model.addAttribute("user", user);
         model.addAttribute("bankAccounts", accounts);
         model.addAttribute("transactionsPage", transactionsPage);
@@ -125,6 +161,9 @@ public class AccountController {
         model.addAttribute("incomeSum", incomeSum);
         model.addAttribute("currentUri", "/account/dashboard");
         model.addAttribute("filter", filter);
+        model.addAttribute("senderBanksStats", senderBanksStats);
+        model.addAttribute("recipientBanksStats", recipientBanksStats);
+
         return "account/dashboard";
     }
 
