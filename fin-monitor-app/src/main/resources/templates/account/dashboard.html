@@ -120,6 +120,16 @@
                         </div>
                     </div>
 
+                    <!-- Виджет с количеством операций за указанный срок (в штуках) -->
+                    <div class="col-12">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Количество операций за период</h4>
+                            <div class="chart-container" style="height: 300px; width: 100%;">
+                                <canvas id="transactionsCountByPeriodChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Виджет сравнения доходов и расходов -->
                     <div class="col-12">
                         <div class="card-body">
@@ -307,6 +317,14 @@
         const recipientBanksStats = [[${recipientBanksStats}]];
         const transactionStatusStats = [[${transactionStatusStats}]];
         const incomeOutcomeComparison = [[${incomeOutcomeComparison}]];
+        const transactionsCountByPeriod = [[${transactionsCountByPeriod}]]
+
+        //для проверки
+        console.log("Transactions count data:", {
+            labels: Object.keys(transactionsCountByPeriod),
+            counts: Object.values(transactionsCountByPeriod),
+            period: period
+        });
 
         initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false, period);
         initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true, period);
@@ -315,7 +333,9 @@
         initBankStatsChart('recipientBanksChart', recipientBanksStats, 'Топ-5 банков получателей');
         initTransactionStatusChart('transactionStatusChart', transactionStatusStats);
         initIncomeOutcomeChart('incomeOutcomeChart', incomeOutcomeComparison);
+        initTransactionsCountByPeriod('transactionsCountByPeriodChart', transactionsCountByPeriod, period);
     });
+
 </script>
 
 </body>

@@ -28,13 +28,9 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.fin_monitor_app.model.OperationStatusEnum.DELETED;
@@ -210,7 +206,55 @@ public class AccountController {
                         )
                 ));
 
-        // Статистика по банкам отправителям
+        // Группировка по количеству операций за указанный срок (в штуках)
+        Map<String, Long> transactionsCountByPeriod = new LinkedHashMap<>();
+
+        if ("year".equals(period)) {
+            // Группировка по месяцам
+            for (int i = 11; i >= 0; i--) {
+                LocalDate month = LocalDate.now().minusMonths(i);
+                String monthKey = month.format(DateTimeFormatter.ofPattern("MMM yyyy"));
+                long count = periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().getMonth() == month.getMonth() &&
+                                t.getCreateDate().getYear() == month.getYear())
+                        .count();
+                transactionsCountByPeriod.put(monthKey, count);
+            }
+        } else if ("quarter".equals(period)) {
+            // Группировка по неделям
+            for (int i = 11; i >= 0; i--) {
+                LocalDate week = LocalDate.now().minusWeeks(i);
+                String weekKey = "Неделя " + week.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear());
+                long count = periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()) ==
+                                week.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))
+                        .count();
+                transactionsCountByPeriod.put(weekKey, count);
+            }
+        } else if ("month".equals(period)) {
+            // Группировка по дням
+            for (int i = 29; i >= 0; i--) {
+                LocalDate day = LocalDate.now().minusDays(i);
+                String dayKey = day.format(DateTimeFormatter.ofPattern("dd.MM"));
+                long count = periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().toLocalDate().equals(day))
+                        .count();
+                transactionsCountByPeriod.put(dayKey, count);
+            }
+
+        } else {
+            // Группировка по дням недели
+            for (int i = 6; i >= 0; i--) {
+                LocalDate day = LocalDate.now().minusDays(i);
+                String dayKey = day.format(DateTimeFormatter.ofPattern("E dd.MM"));
+                long count = periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().toLocalDate().equals(day))
+                        .count();
+                transactionsCountByPeriod.put(dayKey, count);
+            }
+        }
+
+      // Статистика по банкам отправителям
         Map<String, Long> senderBanksStats = periodTransactions.stream()
                 .filter(t -> t.getSenderBank() != null && !t.getSenderBank().isEmpty())
                 .collect(Collectors.groupingBy(
@@ -290,6 +334,7 @@ public class AccountController {
         model.addAttribute("recipientBanksStats", recipientBanksStats);
         model.addAttribute("transactionStatusStats", transactionStatusStats);
         model.addAttribute("incomeOutcomeComparison", incomeOutcomeComparison);
+        model.addAttribute("transactionsCountByPeriod", transactionsCountByPeriod);
 
         return "account/dashboard";
     }
