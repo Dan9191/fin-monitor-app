@@ -100,6 +100,16 @@
                         </div>
                     </div>
 
+                    <!-- Виджет статистики по статусам транзакций -->
+                    <div class="col-12">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Статусы транзакций</h4>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="transactionStatusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -266,12 +276,14 @@
         const categoryData = [[${transactionsByCategory}]];
         const senderBanksStats = [[${senderBanksStats}]];
         const recipientBanksStats = [[${recipientBanksStats}]];
+        const transactionStatusStats = [[${transactionStatusStats}]];
 
         initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false);
         initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true);
         initCategoryChart('categoryChart', categoryData);
         initBankStatsChart('senderBanksChart', senderBanksStats, 'Топ-5 банков отправителей');
         initBankStatsChart('recipientBanksChart', recipientBanksStats, 'Топ-5 банков получателей');
+        initTransactionStatusChart('transactionStatusChart', transactionStatusStats);
     });
 </script>
 

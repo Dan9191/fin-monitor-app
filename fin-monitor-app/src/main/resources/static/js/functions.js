@@ -330,3 +330,65 @@ function initBankStatsChart(chartId, data, title) {
     createChart();
     window.addEventListener('resize', createChart);
 }
+
+function initTransactionStatusChart(chartId, data) {
+    const ctx = document.getElementById(chartId);
+    let chartInstance = null;
+
+    function createChart() {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = Object.keys(data);
+        const counts = Object.values(data);
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество транзакций',
+                    data: counts,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.7)', // Зеленый для выполненных
+                        'rgba(255, 99, 132, 0.7)'  // Красный для удаленных
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} шт`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createChart();
+    window.addEventListener('resize', createChart);
+}

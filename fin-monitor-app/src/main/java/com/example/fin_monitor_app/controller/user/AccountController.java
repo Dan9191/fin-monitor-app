@@ -148,6 +148,18 @@ public class AccountController {
                         LinkedHashMap::new
                 ));
 
+        // Статистика по статусам операций
+        long completedCount = last7DaysTransactions.stream()
+                .filter(t -> t.getOperationStatus().getId() == OperationStatusEnum.COMPLETED.getId())
+                .count();
+
+        long deletedCount = last7DaysTransactions.stream()
+                .filter(t -> t.getOperationStatus().getId() == OperationStatusEnum.DELETED.getId())
+                .count();
+
+        Map<String, Long> transactionStatusStats = new LinkedHashMap<>();
+        transactionStatusStats.put("Выполненные", completedCount);
+        transactionStatusStats.put("Удаленные", deletedCount);
         model.addAttribute("user", user);
         model.addAttribute("bankAccounts", accounts);
         model.addAttribute("transactionsPage", transactionsPage);
@@ -163,6 +175,7 @@ public class AccountController {
         model.addAttribute("filter", filter);
         model.addAttribute("senderBanksStats", senderBanksStats);
         model.addAttribute("recipientBanksStats", recipientBanksStats);
+        model.addAttribute("transactionStatusStats", transactionStatusStats);
 
         return "account/dashboard";
     }
