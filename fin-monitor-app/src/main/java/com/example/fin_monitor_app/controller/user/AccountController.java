@@ -28,8 +28,10 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
@@ -56,11 +58,46 @@ public class AccountController {
     public String dashboard(Principal principal,
                             Model model,
                             @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "week") String period,
                             @ModelAttribute TransactionFilterDto filter) {
         User user = userService.findByLogin(principal.getName());
         List<BankAccount> accounts = bankAccountService.getBankAccounts(user);
-        List<FinTransaction> last7DaysTransactions =
-                finTransactionService.getFinTransactionsByPeriod(user, LocalDateTime.now().minusDays(7), LocalDateTime.now());
+
+        // Определяем период
+        LocalDateTime startDate;
+        int daysToShow;
+        DateTimeFormatter formatter;
+        String periodLabel;
+
+        switch (period) {
+            case "month":
+                startDate = LocalDateTime.now().minusMonths(1);
+                daysToShow = 30;
+                formatter = DateTimeFormatter.ofPattern("dd.MM");
+                periodLabel = "за 30 дней";
+                break;
+            case "quarter":
+                startDate = LocalDateTime.now().minusMonths(3);
+                daysToShow = 12; // 12 недель
+                formatter = DateTimeFormatter.ofPattern("ww (MMM)");
+                periodLabel = "за квартал";
+                break;
+            case "year":
+                startDate = LocalDateTime.now().minusYears(1);
+                daysToShow = 12; // 12 месяцев
+                formatter = DateTimeFormatter.ofPattern("MMM yyyy");
+                periodLabel = "за год";
+                break;
+            case "week":
+            default:
+                startDate = LocalDateTime.now().minusDays(7);
+                daysToShow = 7;
+                formatter = DateTimeFormatter.ofPattern("dd.MM");
+                periodLabel = "за 7 дней";
+        }
+
+        List<FinTransaction> periodTransactions =
+                finTransactionService.getFinTransactionsByPeriod(user, startDate, LocalDateTime.now());
 
         Page<FinTransaction> transactionsPage = finTransactionService.getFilteredTransactions(
                 accounts.stream().map(BankAccount::getId).toList(),
@@ -69,40 +106,99 @@ public class AccountController {
                 5
         );
 
-        List<LocalDate> last7Days = new ArrayList<>();
-        for (int i = 6; i >= 0; i--) {
-            last7Days.add(LocalDate.now().minusDays(i));
+        // Генерация дат/периодов для графика
+        List<String> formattedDates = new ArrayList<>();
+        List<LocalDate> datePoints = new ArrayList<>();
+
+        if (period.equals("year")) {
+            // Для года группируем по месяцам
+            for (int i = 11; i >= 0; i--) {
+                LocalDate month = LocalDate.now().minusMonths(i);
+                datePoints.add(month.withDayOfMonth(1));
+                formattedDates.add(month.format(formatter));
+            }
+        } else if (period.equals("quarter")) {
+            // Для квартала группируем по неделям
+            for (int i = 11; i >= 0; i--) {
+                LocalDate week = LocalDate.now().minusWeeks(i);
+                datePoints.add(week);
+                formattedDates.add(week.format(formatter));
+            }
+        } else {
+            // Для месяца и недели - по дням
+            for (int i = daysToShow-1; i >= 0; i--) {
+                LocalDate day = LocalDate.now().minusDays(i);
+                datePoints.add(day);
+                formattedDates.add(day.format(formatter));
+            }
         }
 
-        // Транзакции с доходами
-        List<BigDecimal> incomeTransactionsSum = last7Days.stream()
-                .map(date -> last7DaysTransactions.stream()
-                        .filter(t -> t.getCreateDate().toLocalDate().equals(date))
+        // Подсчет сумм по периодам
+        List<BigDecimal> incomeTransactionsSum = new ArrayList<>();
+        List<BigDecimal> outcomeTransactionsSum = new ArrayList<>();
+
+        for (LocalDate datePoint : datePoints) {
+            if (period.equals("year")) {
+                // Группировка по месяцам
+                incomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().getMonth() == datePoint.getMonth() &&
+                                t.getCreateDate().getYear() == datePoint.getYear())
                         .filter(t -> t.getTransactionType().getId().equals(INCOME.getId()))
                         .map(FinTransaction::getSum)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
-                .toList();
-        BigDecimal incomeSum = incomeTransactionsSum.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
 
-        // Транзакции с расходами
-        List<BigDecimal> outcomeTransactionsSum = last7Days.stream()
-                .map(date -> last7DaysTransactions.stream()
-                        .filter(t -> t.getCreateDate().toLocalDate().equals(date))
+                outcomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().getMonth() == datePoint.getMonth() &&
+                                t.getCreateDate().getYear() == datePoint.getYear())
                         .filter(t -> t.getTransactionType().getId().equals(OUTCOME.getId()))
                         .map(FinTransaction::getSum)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
-                .toList();
-        BigDecimal expensesSum = outcomeTransactionsSum.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+            } else if (period.equals("quarter")) {
+                // Группировка по неделям
+                int week = datePoint.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear());
+                int year = datePoint.getYear();
 
+                incomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()) == week &&
+                                t.getCreateDate().getYear() == year)
+                        .filter(t -> t.getTransactionType().getId().equals(INCOME.getId()))
+                        .map(FinTransaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
-        List<String> formattedDates = last7Days.stream()
-                .map(date -> date.format(formatter))
-                .collect(Collectors.toList());
+                outcomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()) == week &&
+                                t.getCreateDate().getYear() == year)
+                        .filter(t -> t.getTransactionType().getId().equals(OUTCOME.getId()))
+                        .map(FinTransaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+            } else {
+                // Группировка по дням
+                incomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().toLocalDate().equals(datePoint))
+                        .filter(t -> t.getTransactionType().getId().equals(INCOME.getId()))
+                        .map(FinTransaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
 
-        // Группировка по категориям для операций последней недели
-        Map<String, BigDecimal> transactionsByCategory = last7DaysTransactions.stream()
-                .filter(t -> last7Days.contains(t.getCreateDate().toLocalDate()))
+                outcomeTransactionsSum.add(periodTransactions.stream()
+                        .filter(t -> t.getCreateDate().toLocalDate().equals(datePoint))
+                        .filter(t -> t.getTransactionType().getId().equals(OUTCOME.getId()))
+                        .map(FinTransaction::getSum)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+            }
+        }
+
+        BigDecimal expensesSum = periodTransactions.stream()
+                .filter(t -> t.getTransactionType().getId().equals(OUTCOME.getId()))
+                .map(FinTransaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal incomeSum = periodTransactions.stream()
+                .filter(t -> t.getTransactionType().getId().equals(INCOME.getId()))
+                .map(FinTransaction::getSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Группировка по категориям для операций за указанный срок
+        Map<String, BigDecimal> transactionsByCategory = periodTransactions.stream()
                 .filter(t -> t.getOperationStatus().getId() != DELETED.getId())
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
@@ -115,7 +211,7 @@ public class AccountController {
                 ));
 
         // Статистика по банкам отправителям
-        Map<String, Long> senderBanksStats = last7DaysTransactions.stream()
+        Map<String, Long> senderBanksStats = periodTransactions.stream()
                 .filter(t -> t.getSenderBank() != null && !t.getSenderBank().isEmpty())
                 .collect(Collectors.groupingBy(
                         FinTransaction::getSenderBank,
@@ -132,7 +228,7 @@ public class AccountController {
                 ));
 
         // Статистика по банкам получателям
-        Map<String, Long> recipientBanksStats = last7DaysTransactions.stream()
+        Map<String, Long> recipientBanksStats = periodTransactions.stream()
                 .filter(t -> t.getRecipientBank() != null && !t.getRecipientBank().isEmpty())
                 .collect(Collectors.groupingBy(
                         FinTransaction::getRecipientBank,
@@ -149,21 +245,21 @@ public class AccountController {
                 ));
 
         // Статистика по статусам операций
-        long completedCount = last7DaysTransactions.stream()
+        long completedCount = periodTransactions.stream()
                 .filter(t -> t.getOperationStatus().getId() == OperationStatusEnum.COMPLETED.getId())
                 .count();
 
-        long deletedCount = last7DaysTransactions.stream()
+        long deletedCount = periodTransactions.stream()
                 .filter(t -> t.getOperationStatus().getId() == OperationStatusEnum.DELETED.getId())
                 .count();
 
         // Суммарные доходы и расходы
-        BigDecimal totalIncome = last7DaysTransactions.stream()
+        BigDecimal totalIncome = periodTransactions.stream()
                 .filter(t -> t.getTransactionType().getId() == INCOME.getId())
                 .map(FinTransaction::getSum)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalOutcome = last7DaysTransactions.stream()
+        BigDecimal totalOutcome = periodTransactions.stream()
                 .filter(t -> t.getTransactionType().getId() == OUTCOME.getId())
                 .map(FinTransaction::getSum)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -171,10 +267,11 @@ public class AccountController {
         Map<String, BigDecimal> incomeOutcomeComparison = new LinkedHashMap<>();
         incomeOutcomeComparison.put("Поступления", totalIncome);
         incomeOutcomeComparison.put("Списания", totalOutcome);
-
         Map<String, Long> transactionStatusStats = new LinkedHashMap<>();
+
         transactionStatusStats.put("Выполненные", completedCount);
         transactionStatusStats.put("Удаленные", deletedCount);
+        model.addAttribute("periodLabel", periodLabel);
         model.addAttribute("user", user);
         model.addAttribute("bankAccounts", accounts);
         model.addAttribute("transactionsPage", transactionsPage);
@@ -188,6 +285,7 @@ public class AccountController {
         model.addAttribute("incomeSum", incomeSum);
         model.addAttribute("currentUri", "/account/dashboard");
         model.addAttribute("filter", filter);
+        model.addAttribute("period", period);
         model.addAttribute("senderBanksStats", senderBanksStats);
         model.addAttribute("recipientBanksStats", recipientBanksStats);
         model.addAttribute("transactionStatusStats", transactionStatusStats);

@@ -38,40 +38,50 @@
                     <button type="submit" class="btn btn-link text-start w-100">Выход</button>
                 </form>
             </div>
-            <!-- Первый столбец (2 виджета вертикально) -->
+
+            <!-- Форма выбора периода (добавить в начало main-body-cont) -->
+            <div class="vert-widgets">
+                <div class="card-body">
+                    <form id="periodForm" method="get" action="/account/dashboard">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label for="periodSelect" class="form-label">Период статистики:</label>
+                                <select class="form-select" id="periodSelect" name="period">
+                                    <option value="week" th:selected="${period == 'week'}">Неделя</option>
+                                    <option value="month" th:selected="${period == 'month'}">Месяц</option>
+                                    <option value="quarter" th:selected="${period == 'quarter'}">Квартал</option>
+                                    <option value="year" th:selected="${period == 'year'}">Год</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary">Применить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Первый столбец-виджеты -->
             <div class="vert-widgets">
                 <div class="row row-no-gutters g-3 %" style="width: 100%">  <!-- промежутки между виджетами -->
                     <!-- Виджет 1 (расходы) -->
-                    <div class="col-12" >
-                        <div class="card ">
+                    <div class="col-12">
+                        <div class="card">
                             <div class="card-body" style="width: 100%">
-                                <h4 class="card-title text-center mb-3">Расходы за 7 дней</h4>
-                                <div class="chart-container" style="height: 280px; ">
+                                <h4 class="card-title text-center mb-3" th:text="'Расходы ' + ${periodLabel}">Расходы</h4>
+                                <div class="chart-container" style="height: 280px;">
                                     <canvas id="transactionsChart1"></canvas>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <h5 class="text-danger">Всего:
-                                        <span th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span>
-                                        ₽
-                                    </h5>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Виджет 2 (доходы) -->
-                    <div class="col-12" >
-                        <div class="card " >
+                    <div class="col-12">
+                        <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title text-center mb-3">Доходы за 7 дней</h4>
+                                <h4 class="card-title text-center mb-3" th:text="'Доходы ' + ${periodLabel}">Доходы</h4>
                                 <div class="chart-container" style="height: 280px;">
                                     <canvas id="transactionsChart2"></canvas>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <h5 class="text-success">Всего:
-                                        <span th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span>
-                                        ₽
-                                    </h5>
                                 </div>
                             </div>
                         </div>
@@ -291,14 +301,15 @@
         const dates = [[${chartDates}]];
         const incomeTransactionsSum = [[${incomeTransactionsSum}]];
         const outcomeTransactionsSum = [[${outcomeTransactionsSum}]];
+        const period = [[${period}]];
         const categoryData = [[${transactionsByCategory}]];
         const senderBanksStats = [[${senderBanksStats}]];
         const recipientBanksStats = [[${recipientBanksStats}]];
         const transactionStatusStats = [[${transactionStatusStats}]];
         const incomeOutcomeComparison = [[${incomeOutcomeComparison}]];
 
-        initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false);
-        initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true);
+        initTransactionChart('transactionsChart1', dates, outcomeTransactionsSum, false, period);
+        initTransactionChart('transactionsChart2', dates, incomeTransactionsSum, true, period);
         initCategoryChart('categoryChart', categoryData);
         initBankStatsChart('senderBanksChart', senderBanksStats, 'Топ-5 банков отправителей');
         initBankStatsChart('recipientBanksChart', recipientBanksStats, 'Топ-5 банков получателей');

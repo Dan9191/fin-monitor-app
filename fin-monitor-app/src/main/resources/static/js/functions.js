@@ -1,68 +1,86 @@
-function initTransactionChart(chartId, dates, counts, isIncome) {
+function initTransactionChart(chartId, dates, counts, isIncome, period) {
     const ctx = document.getElementById(chartId);
     let chartInstance = null;
 
     function createChart() {
-        // Удаляем предыдущий график, если он существует
         if (chartInstance) {
             chartInstance.destroy();
         }
 
-        // Определяем цвет в зависимости от isIncome
         const backgroundColor = isIncome
-            ? 'rgba(48, 223, 81, 0.5)'  // Зелёный для доходов
-            : 'rgba(255, 99, 132, 0.5)'; // Красный для расходов
+            ? 'rgba(48, 223, 81, 0.5)'
+            : 'rgba(255, 99, 132, 0.5)';
 
         const borderColor = isIncome
-            ? 'rgb(66, 235, 54)'  // Зелёный для доходов
-            : 'rgb(255, 99, 132)'; // Красный для расходов
+            ? 'rgb(66, 235, 54)'
+            : 'rgb(255, 99, 132)';
+
+        // Настройки для разных периодов
+        let chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('ru-RU');
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: true,
+                        maxRotation: period === 'year' ? 45 : 0,
+                        font: {
+                            size: period === 'year' ? 10 : 12
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw.toLocaleString('ru-RU')} ₽`;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Для года делаем график линейным для лучшей читаемости
+        const chartType = period === 'year' ? 'line' : 'bar';
 
         chartInstance = new Chart(ctx, {
-            type: 'bar',
+            type: chartType,
             data: {
                 labels: dates,
                 datasets: [{
                     label: 'Объем средств',
                     data: counts,
-                    backgroundColor: backgroundColor,
+                    backgroundColor: chartType === 'bar' ? backgroundColor : 'transparent',
                     borderColor: borderColor,
-                    borderWidth: 1
+                    borderWidth: chartType === 'line' ? 2 : 1,
+                    fill: chartType === 'line',
+                    tension: 0.1
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            precision: 0
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
+            options: chartOptions
         });
     }
 
-    // Создаем график при загрузке
     createChart();
-
-
-    // Обработчик изменения размера окна
-    window.addEventListener('resize', function() {
-        createChart();
-    });
+    window.addEventListener('resize', createChart);
 }
+
 function initCategoryChart(chartId, categoryData) {
     const ctx = document.getElementById(chartId);
     let chartInstance = null;
