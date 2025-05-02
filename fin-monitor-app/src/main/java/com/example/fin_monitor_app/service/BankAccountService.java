@@ -14,10 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
- * Сервис по работе с счетами.
+ * Сервис по работе со счетами.
  */
 @Service
 @RequiredArgsConstructor

@@ -12,6 +12,7 @@ import com.example.fin_monitor_app.service.cache.TransactionTypeService;
 import com.example.fin_monitor_app.view.CreateFinTransactionDto;
 import com.example.fin_monitor_app.view.EditFinTransactionDto;
 import com.example.fin_monitor_app.utils.FinTransactionSpecifications;
+import com.example.fin_monitor_app.view.ReportFilterDto;
 import com.example.fin_monitor_app.view.TransactionFilterDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -65,11 +66,7 @@ public class FinTransactionService {
 
         finTransaction.setBankAccount(bankAccount.get());
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
-        if(createFinTransactionDto.getTransactionType().getLabel().equals("Списание")) {
-            finTransaction.setSum(createFinTransactionDto.getBalance().negate());
-        }
-        else
-            finTransaction.setSum(createFinTransactionDto.getBalance());
+        finTransaction.setSum(createFinTransactionDto.getBalance().abs());
         finTransaction.setCreateDate(LocalDateTime.now());
         finTransaction.setCommentary(createFinTransactionDto.getCommentary());
         finTransaction.setTransactionType(
@@ -240,5 +237,47 @@ public class FinTransactionService {
         );
         return finTransactionRepository.findAll(spec, pageRequest);
     }
+
+    /**
+     * Поиск записей по фильтрам + пагинация.
+     */
+    public List<FinTransaction> getFilteredTransactions(ReportFilterDto filter
+    ) {
+        Specification<FinTransaction> spec = Specification.where(
+                FinTransactionSpecifications.byBankAccountIds(filter.getBankAccountIds())
+        );
+        LocalDateTime dateFrom = filter.getDateFrom() != null ? filter.getDateFrom().atStartOfDay() : null;
+        if (dateFrom != null) {
+            spec = spec.and(FinTransactionSpecifications.dateFrom(dateFrom));
+        }
+
+        LocalDateTime dateTo = filter.getDateTo() != null ? filter.getDateTo().plusDays(1).atStartOfDay() : null;
+
+        if (dateTo != null) {
+            spec = spec.and(FinTransactionSpecifications.dateTo(dateTo));
+        }
+        if (filter.getAmountFrom() != null) {
+            spec = spec.and(FinTransactionSpecifications.amountFrom(filter.getAmountFrom()));
+        }
+
+        if (filter.getAmountTo() != null) {
+            spec = spec.and(FinTransactionSpecifications.amountTo(filter.getAmountTo()));
+        }
+
+        if (filter.getStatusIds() != null && !filter.getStatusIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasStatusIds(filter.getStatusIds()));
+        }
+
+        if (filter.getCategoryIds() != null && !filter.getCategoryIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasCategoryIds(filter.getCategoryIds()));
+        }
+
+        if (filter.getTransactionTypeIds() != null && !filter.getTransactionTypeIds().isEmpty()) {
+            spec = spec.and(FinTransactionSpecifications.hasTransactionTypeIds(filter.getTransactionTypeIds()));
+        }
+
+        return finTransactionRepository.findAll(spec);
+    }
+
 
 }
