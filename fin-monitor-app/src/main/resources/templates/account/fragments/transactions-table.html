@@ -135,13 +135,13 @@
         </thead>
         <tbody>
         <tr th:each="transaction : ${transactionsPage}"
-            th:class="${transaction.sum > 0 ? 'income' : 'expense'}"
+            th:class="${transaction.transactionType.name == 'Поступление' ? 'income' : 'expense'}"
             class="transaction-row">
             <td th:text="${transaction.bankAccount.accountName}"></td>
             <td th:text="${transaction.bankAccount.personType.name}"></td>
             <td th:text="${transaction.commentary} ?: 'Без комментария'"></td>
             <td th:text="${transaction.category.name}"></td>
-            <td th:text="${transaction.sum > 0 ? '+' : ''} + ${#numbers.formatDecimal(transaction.sum, 1, 2)}"></td>
+            <td th:text="${transaction.transactionType.name == 'Поступление' ? '+' : '-'} + ${#numbers.formatDecimal(transaction.sum, 1, 2)}"></td>
             <td th:text="${#temporals.format(transaction.createDate, 'dd.MM.yyyy ')}"></td>
             <!-- Добавил статус в список -->
             <td th:text="${transaction.operationStatus.name}"></td>
