@@ -411,6 +411,79 @@ function initTransactionStatusChart(chartId, data) {
     window.addEventListener('resize', createChart);
 }
 
+// Группировка по количеству операций за указанный срок (в штуках)
+function initTransactionsCountByPeriod(chartId, transactionsCountByPeriod, period) {
+    const ctx = document.getElementById(chartId);
+    let chartInstance = null;
+
+    function createChart() {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = Object.keys(transactionsCountByPeriod);
+        const counts = Object.values(transactionsCountByPeriod);
+
+        // Определяем тип графика и настройки в зависимости от периода
+        const chartType = period === 'year' ? 'line' : 'bar';
+        const maxRotation = period === 'year' || period === 'month' ? 45 : 0;
+        const fontSize = period === 'year' ? 10 : 12;
+
+        chartInstance = new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество операций',
+                    data: counts,
+                    backgroundColor: chartType === 'bar' ?
+                        'rgba(54, 162, 235, 0.7)' : 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} операций`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: maxRotation,
+                            font: {
+                                size: fontSize
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createChart();
+    window.addEventListener('resize', createChart);
+}
+
 function initIncomeOutcomeChart(chartId, data) {
     const ctx = document.getElementById(chartId);
     let chartInstance = null;
