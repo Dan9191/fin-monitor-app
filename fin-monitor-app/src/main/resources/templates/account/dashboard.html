@@ -41,11 +41,11 @@
 
             <!-- Форма выбора периода (добавить в начало main-body-cont) -->
             <div class="vert-widgets">
-                <div class="card-body">
+                <div class="card" style="margin-right: 15px">
                     <form id="periodForm" method="get" action="/account/dashboard">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <label for="periodSelect" class="form-label">Период статистики:</label>
+                        <div class="widgets-filter">
+                            <label for="periodSelect" class="widgets-form-label">Период статистики:</label>
+                            <div class="widgets-select">
                                 <select class="form-select" id="periodSelect" name="period">
                                     <option value="week" th:selected="${period == 'week'}">Неделя</option>
                                     <option value="month" th:selected="${period == 'month'}">Месяц</option>
@@ -53,7 +53,7 @@
                                     <option value="year" th:selected="${period == 'year'}">Год</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="widgets-btn">
                                 <button type="submit" class="btn btn-primary">Применить</button>
                             </div>
                         </div>
@@ -68,7 +68,8 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body" style="width: 100%">
-                                <h4 class="card-title text-center mb-3" th:text="'Расходы ' + ${periodLabel}">Расходы</h4>
+                                <h4 class="card-title text-center mb-3" th:text="'Расходы ' + ${periodLabel}">
+                                    Расходы</h4>
                                 <div class="chart-container" style="height: 280px;">
                                     <canvas id="transactionsChart1"></canvas>
                                 </div>
@@ -86,68 +87,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title text-center mb-3">Топ-5 банков отправителей</h4>
-                                <div class="chart-container" style="height: 300px;">
-                                    <canvas id="senderBanksChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title text-center mb-3">Топ-5 банков получателей</h4>
-                                <div class="chart-container" style="height: 300px;">
-                                    <canvas id="recipientBanksChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Виджет статистики по статусам транзакций -->
-                    <div class="col-12">
-                        <div class="card-body">
-                            <h4 class="card-title text-center mb-3">Статусы транзакций</h4>
-                            <div class="chart-container" style="height: 300px;">
-                                <canvas id="transactionStatusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Виджет с количеством операций за указанный срок (в штуках) -->
-                    <div class="col-12">
-                        <div class="card-body">
-                            <h4 class="card-title text-center mb-3">Количество операций за период</h4>
-                            <div class="chart-container" style="height: 300px; width: 100%;">
-                                <canvas id="transactionsCountByPeriodChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Виджет сравнения доходов и расходов -->
-                    <div class="col-12">
-                        <div class="card-body">
-                            <h4 class="card-title text-center mb-3">Сравнение доходов и расходов</h4>
-                            <div class="chart-container" style="height: 300px;">
-                                <canvas id="incomeOutcomeChart"></canvas>
-                            </div>
-                            <div class="text-center mt-3">
-                                <h5>Всего поступлений:
-                                    <span class="text-success" th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span> ₽
-                                </h5>
-                                <h5>Всего списаний:
-                                    <span class="text-danger" th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span> ₽
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -215,18 +154,7 @@
                 </div>
 
             </div>
-            <!-- Карточка со статистикой операций -->
-            <div class="bublik-grid">
-                <!-- Второй столбец (большой виджет категорий) -->
-                <div class="card" style="height: 100%; width:100%">
-                    <div class="card-body d-flex flex-column" style="height: 100%; padding: 1rem;">
-                        <h4 class="card-title text-center mb-3">Распределение объема финансов по категориям за 7 дней</h4>
-                        <div class="chart-container flex-grow-1" style="position: relative;">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <div class="operation-grid">
                 <!-- Карточка с операциями -->
                 <div class="card">
@@ -248,8 +176,89 @@
                     </div>
                 </div>
             </div>
+            <!--Виджеты-->
+            <!-- Карточка со статистикой операций -->
+            <div class="bublik-grid-first">
+                <!-- Второй столбец (большой виджет категорий) -->
+                <div class="card">
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="card-title text-center mb-3">Распределение объема финансов по категориям </h4>
+                        <div class="chart-container " style="height: 360px;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Виджет сравнения доходов и расходов -->
+            <div class="bublik-grid-second">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Сравнение доходов и расходов</h4>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="incomeOutcomeChart"></canvas>
+                        </div>
+                        <div class="text-center mt-3">
+                            <h5>Всего поступлений:
+                                <span class="text-success"
+                                      th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span> ₽
+                            </h5>
+                            <h5>Всего списаний:
+                                <span class="text-danger"
+                                      th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span> ₽
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-grid-1">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Топ-5 банков отправителей</h4>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="senderBanksChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="widget-grid-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Топ-5 банков получателей</h4>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="recipientBanksChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Виджет статистики по статусам транзакций -->
+            <div class="widget-grid-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Статусы транзакций</h4>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="transactionStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Виджет с количеством операций за указанный срок (в штуках) -->
+            <div class="widget-grid-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-3">Количество операций за период</h4>
+                        <div class="chart-container" style="height: 300px; width: 100%;">
+                            <canvas id="transactionsCountByPeriodChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
+
 
     </div>
 </div>
@@ -307,7 +316,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/functions.js"></script>
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const dates = [[${chartDates}]];
         const incomeTransactionsSum = [[${incomeTransactionsSum}]];
         const outcomeTransactionsSum = [[${outcomeTransactionsSum}]];
