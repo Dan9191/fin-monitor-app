@@ -87,6 +87,17 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Виджет с количеством операций за указанный срок (в штуках) -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title text-center mb-3">Количество операций за период</h4>
+                                <div class="chart-container" style="height: 400px;" >
+                                    <canvas id="transactionsCountByPeriodChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,86 +188,77 @@
                 </div>
             </div>
             <!--Виджеты-->
-            <!-- Карточка со статистикой операций -->
-            <div class="bublik-grid-first">
-                <!-- Второй столбец (большой виджет категорий) -->
-                <div class="card">
-                    <div class="card-body d-flex flex-column">
-                        <h4 class="card-title text-center mb-3">Распределение объема финансов по категориям </h4>
-                        <div class="chart-container " style="height: 360px;">
-                            <canvas id="categoryChart"></canvas>
+            <div class="widgets-grids">
+                <!-- Карточка со статистикой операций -->
+                <div class="bublik-grid-first">
+                    <!-- Второй столбец (большой виджет категорий) -->
+                    <div class="card">
+                        <div class="card-body d-flex flex-column">
+                            <h4 class="card-title text-center mb-3">Распределение объема финансов по категориям </h4>
+                            <div class="chart-container " >
+                                <canvas id="categoryChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Виджет сравнения доходов и расходов -->
-            <div class="bublik-grid-second">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-3">Сравнение доходов и расходов</h4>
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="incomeOutcomeChart"></canvas>
-                        </div>
-                        <div class="text-center mt-3">
-                            <h5>Всего поступлений:
-                                <span class="text-success"
-                                      th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span> ₽
-                            </h5>
-                            <h5>Всего списаний:
-                                <span class="text-danger"
-                                      th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span> ₽
-                            </h5>
+                <!-- Виджет сравнения доходов и расходов -->
+                <div class="bublik-grid-second">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Сравнение доходов и расходов</h4>
+                            <div class="chart-container" >
+                                <canvas id="incomeOutcomeChart"></canvas>
+                            </div>
+                            <div class="text-center mt-3">
+                                <h5>Всего поступлений:
+                                    <span class="text-success"
+                                          th:text="${#numbers.formatDecimal(incomeSum, 1, 2, 'COMMA')}">0</span> ₽
+                                </h5>
+                                <h5>Всего списаний:
+                                    <span class="text-danger"
+                                          th:text="${#numbers.formatDecimal(expensesSum, 1, 2, 'COMMA')}">0</span> ₽
+                                </h5>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="widget-grid-1">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-3">Топ-5 банков отправителей</h4>
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="senderBanksChart"></canvas>
+                <div class="widget-grid-1">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Топ-5 банков отправителей</h4>
+                            <div class="chart-container" style="height: 208px">
+                                <canvas id="senderBanksChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="widget-grid-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Топ-5 банков получателей</h4>
+                            <div class="chart-container" style="height: 208px">
+                                <canvas id="recipientBanksChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-            </div>
-
-            <div class="widget-grid-2">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-3">Топ-5 банков получателей</h4>
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="recipientBanksChart"></canvas>
+                <!-- Виджет статистики по статусам транзакций -->
+                <div class="widget-grid-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title text-center mb-3">Статусы транзакций</h4>
+                            <div class="chart-container" style="height: 208px">
+                                <canvas id="transactionStatusChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Виджет статистики по статусам транзакций -->
-            <div class="widget-grid-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-3">Статусы транзакций</h4>
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="transactionStatusChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Виджет с количеством операций за указанный срок (в штуках) -->
-            <div class="widget-grid-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-3">Количество операций за период</h4>
-                        <div class="chart-container" style="height: 300px; width: 100%;">
-                            <canvas id="transactionsCountByPeriodChart"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
-
         </div>
 
 

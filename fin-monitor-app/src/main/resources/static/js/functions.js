@@ -444,6 +444,7 @@ function initTransactionsCountByPeriod(chartId, transactionsCountByPeriod, perio
                 }]
             },
             options: {
+                indexAxis: 'y', // Это ключевое изменение - делает график горизонтальным
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
@@ -459,14 +460,14 @@ function initTransactionsCountByPeriod(chartId, transactionsCountByPeriod, perio
                     }
                 },
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true,
                         ticks: {
                             precision: 0,
                             stepSize: 1
                         }
                     },
-                    x: {
+                    y: {
                         ticks: {
                             autoSkip: false,
                             maxRotation: maxRotation,
@@ -483,7 +484,6 @@ function initTransactionsCountByPeriod(chartId, transactionsCountByPeriod, perio
     createChart();
     window.addEventListener('resize', createChart);
 }
-
 function initIncomeOutcomeChart(chartId, data) {
     const ctx = document.getElementById(chartId);
     let chartInstance = null;
