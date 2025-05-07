@@ -2,8 +2,10 @@ package com.example.fin_monitor_app.service;
 
 import com.example.fin_monitor_app.entity.BankAccount;
 import com.example.fin_monitor_app.entity.FinTransaction;
+import com.example.fin_monitor_app.entity.TransactionType;
 import com.example.fin_monitor_app.entity.User;
 import com.example.fin_monitor_app.model.OperationStatusEnum;
+import com.example.fin_monitor_app.model.TransactionTypeEnum;
 import com.example.fin_monitor_app.repository.BankAccountRepository;
 import com.example.fin_monitor_app.repository.FinTransactionRepository;
 import com.example.fin_monitor_app.service.cache.CategoryCacheService;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import com.example.fin_monitor_app.entity.OperationStatus;
@@ -58,15 +61,26 @@ public class FinTransactionService {
      */
     public void save(CreateFinTransactionDto createFinTransactionDto) {
         FinTransaction finTransaction = new FinTransaction();
-        Optional<BankAccount> bankAccount = bankAccountRepository.findById(createFinTransactionDto.getBankAccountId());
-        if (bankAccount.isEmpty()) {
+        Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(createFinTransactionDto.getBankAccountId());
+        if (bankAccountOpt.isEmpty()) {
             log.error("BankAccount is name {} not found", createFinTransactionDto.getBankAccountName());
             throw new NoSuchElementException("Кошелек не найден: " + createFinTransactionDto.getBankAccountName());
         }
 
-        finTransaction.setBankAccount(bankAccount.get());
+        BankAccount bankAccount = bankAccountOpt.get();
+
+        // Обновление баланса в зависимости от типа транзакции
+        BigDecimal currentBalance = bankAccount.getBalance();
+        BigDecimal transactionAmount = createFinTransactionDto.getBalance().abs();
+        if (createFinTransactionDto.getTransactionType() == TransactionTypeEnum.INCOME) {
+            bankAccount.setBalance(currentBalance.add(transactionAmount));
+        } else if (createFinTransactionDto.getTransactionType() == TransactionTypeEnum.OUTCOME) {
+            bankAccount.setBalance(currentBalance.subtract(transactionAmount));
+        }
+
+        finTransaction.setBankAccount(bankAccount);
         finTransaction.setCategory(categoryCacheService.findById(createFinTransactionDto.getCategoryEnum().getId()));
-        finTransaction.setSum(createFinTransactionDto.getBalance().abs());
+        finTransaction.setSum(transactionAmount);
         finTransaction.setCreateDate(LocalDateTime.now());
         finTransaction.setCommentary(createFinTransactionDto.getCommentary());
         finTransaction.setTransactionType(
@@ -76,16 +90,17 @@ public class FinTransactionService {
                 operationStatusCacheService.findById(createFinTransactionDto.getOperationStatus().getId())
         );
 
-        // дополнительные поля для операции
-        finTransaction.setSenderBank(createFinTransactionDto.getSenderBank()); //Банк отправителя
-        finTransaction.setRecipientBank(createFinTransactionDto.getRecipientBank()); //Банк получателя
-        finTransaction.setRecipientBankAccount(createFinTransactionDto.getRecipientBankAccount()); //Расчетный счет получателя
-        finTransaction.setRecipientTelephoneNumber(createFinTransactionDto.getRecipientTelephoneNumber());//Телефон получателя
-        finTransaction.setRecipientTin(createFinTransactionDto.getRecipientTin()); // ИНН получателя
-        finTransaction.setWithdrawalAccount(createFinTransactionDto.getWithdrawalAccount());//Счет списания
+        // Дополнительные поля для операции
+        finTransaction.setSenderBank(createFinTransactionDto.getSenderBank());
+        finTransaction.setRecipientBank(createFinTransactionDto.getRecipientBank());
+        finTransaction.setRecipientBankAccount(createFinTransactionDto.getRecipientBankAccount());
+        finTransaction.setRecipientTelephoneNumber(createFinTransactionDto.getRecipientTelephoneNumber());
+        finTransaction.setRecipientTin(createFinTransactionDto.getRecipientTin());
+        finTransaction.setWithdrawalAccount(createFinTransactionDto.getWithdrawalAccount());
 
         finTransactionRepository.save(finTransaction);
-        log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.get().getAccountName());
+        bankAccountRepository.save(bankAccount);
+        log.info("save fin transaction: {} for account {} ", finTransaction.getId(), bankAccount.getAccountName());
     }
 
     /**
@@ -107,11 +122,27 @@ public class FinTransactionService {
             throw new NoSuchElementException("Транзакцию в данном статусе запрещено удалять: " + transactionId);
         }
 
+        // Откат эффекта транзакции на баланс
+        BankAccount bankAccount = transaction.getBankAccount();
+        BigDecimal currentBalance = bankAccount.getBalance();
+        BigDecimal transactionAmount = transaction.getSum();
+        TransactionType transactionType = transaction.getTransactionType();
+
+        if (transactionType.getId() == TransactionTypeEnum.INCOME.getId()) {
+            if (currentBalance.compareTo(transactionAmount) < 0) {
+                throw new IllegalStateException("Недостаточно средств на счете для отмены транзакции: " + bankAccount.getAccountName());
+            }
+            bankAccount.setBalance(currentBalance.subtract(transactionAmount));
+        } else if (transactionType.getId() == TransactionTypeEnum.OUTCOME.getId()) {
+            bankAccount.setBalance(currentBalance.add(transactionAmount));
+        }
+
         OperationStatus deletedStatus = operationStatusCacheService.findById(OperationStatusEnum.DELETED.getId());
         transaction.setOperationStatus(deletedStatus);
 
         finTransactionRepository.save(transaction);
-        log.info("Transaction {} marked as deleted", transactionId);
+        bankAccountRepository.save(bankAccount);
+        log.info("Transaction {} marked as deleted with updated balance {}", transactionId, bankAccount.getBalance());
     }
 
     /**
@@ -150,15 +181,38 @@ public class FinTransactionService {
      *
      * @param dto dto с внесенными в транзакцию изменениями.
      */
+    @Transactional
     public void update(EditFinTransactionDto dto) {
         FinTransaction finTransaction = finTransactionRepository.findById((long) dto.getId())
                 .orElseThrow(() -> {
                     log.error("transaction id {} not found", dto.getId());
-                     return new NoSuchElementException("Transaction not found");
+                    return new NoSuchElementException("Transaction not found");
                 });
 
+        BankAccount bankAccount = finTransaction.getBankAccount();
+
+        // Отмена предыдущей изменения баланса
+        BigDecimal currentBalance = bankAccount.getBalance();
+        BigDecimal oldAmount = finTransaction.getSum();
+        TransactionType oldType = finTransaction.getTransactionType();
+        if (oldType.getId() == TransactionTypeEnum.INCOME.getId()) {
+            bankAccount.setBalance(currentBalance.subtract(oldAmount));
+        } else if (oldType.getId() == TransactionTypeEnum.OUTCOME.getId()) {
+            bankAccount.setBalance(currentBalance.add(oldAmount));
+        }
+
+        // Применение нового изменения баланса
+        BigDecimal newAmount = dto.getBalance().abs();
+        TransactionTypeEnum newType = dto.getTransactionType();
+        if (newType == TransactionTypeEnum.INCOME) {
+            bankAccount.setBalance(bankAccount.getBalance().add(newAmount));
+        } else if (newType == TransactionTypeEnum.OUTCOME) {
+            bankAccount.setBalance(bankAccount.getBalance().subtract(newAmount));
+        }
+
+        // Обновление полей транзакции
         finTransaction.setCategory(categoryCacheService.findById(dto.getCategoryEnum().getId()));
-        finTransaction.setSum(dto.getBalance().abs());
+        finTransaction.setSum(newAmount);
         finTransaction.setCreateDate(LocalDateTime.now());
         finTransaction.setCommentary(dto.getCommentary());
         finTransaction.setTransactionType(
@@ -167,16 +221,16 @@ public class FinTransactionService {
         finTransaction.setOperationStatus(
                 operationStatusCacheService.findById(dto.getOperationStatus().getId())
         );
-        // дополнительные поля для операции
-        finTransaction.setSenderBank(dto.getSenderBank()); //Банк отправителя
-        finTransaction.setRecipientBank(dto.getRecipientBank()); //Банк получателя
-        finTransaction.setRecipientBankAccount(dto.getRecipientBankAccount()); //Расчетный счет получателя
-        finTransaction.setRecipientTelephoneNumber(dto.getRecipientTelephoneNumber());//Телефон получателя
-        finTransaction.setRecipientTin(dto.getRecipientTin()); // ИНН получателя
-        finTransaction.setWithdrawalAccount(dto.getWithdrawalAccount());//Счет списания
+        finTransaction.setSenderBank(dto.getSenderBank());
+        finTransaction.setRecipientBank(dto.getRecipientBank());
+        finTransaction.setRecipientBankAccount(dto.getRecipientBankAccount());
+        finTransaction.setRecipientTelephoneNumber(dto.getRecipientTelephoneNumber());
+        finTransaction.setRecipientTin(dto.getRecipientTin());
+        finTransaction.setWithdrawalAccount(dto.getWithdrawalAccount());
 
         finTransactionRepository.save(finTransaction);
-        log.info("Transaction id: {} updated", dto.getId());
+        bankAccountRepository.save(bankAccount);
+        log.info("Transaction id: {} updated with new balance {}", dto.getId(), bankAccount.getBalance());
     }
 
     /**
