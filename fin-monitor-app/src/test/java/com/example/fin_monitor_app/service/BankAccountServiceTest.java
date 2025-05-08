@@ -85,6 +85,4 @@ class BankAccountServiceTest {
         assertEquals(expectedAccount, actualAccount);
         verify(bankAccountRepository).findById(accountId);
     }
-
-    //тестируем успешное сохранение банковского счёта
 }
