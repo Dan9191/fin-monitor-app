@@ -29,6 +29,7 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    //протестировать создание нового пользователя
     @Test
     void createUser_Success() {
         CreateUserView userView = new CreateUserView();
@@ -44,6 +45,7 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    //протестировать смену пароля
     @Test
     void updateProfile_ChangesPassword() {
         ProfileUpdateDto dto = new ProfileUpdateDto();

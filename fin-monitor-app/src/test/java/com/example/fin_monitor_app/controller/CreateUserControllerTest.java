@@ -30,6 +30,7 @@ class CreateUserControllerTest {
     @InjectMocks
     private CreateUserController controller;
 
+    //протестировать успешную регистрацию (создание) нового пользователя через контроллер
     @Test
     void registerUser_Success() {
         CreateUserView userView = new CreateUserView();
