@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class FinTransactionRepositoryTest {
@@ -59,7 +58,7 @@ class FinTransactionRepositoryTest {
         Page<FinTransaction> result = finTransactionRepository.findAllByBankAccount(bankAccount, PageRequest.of(0, 5));
 
         assertEquals(1, result.getContent().size());
-        assertEquals(finTransaction, result.getContent().get(0));
+        assertEquals(finTransaction, result.getContent().getFirst());
     }
 
     //протестировала метод findFinTransactionsByUserAndFilters, который возвращает список транзакций по фильтрам.
@@ -103,20 +102,25 @@ class FinTransactionRepositoryTest {
         List<FinTransaction> transactions = new ArrayList<>();
         transactions.add(finTransaction);
 
+
+        LocalDateTime fromDate = LocalDateTime.now().minusDays(7);
+        LocalDateTime toDate = LocalDateTime.now().minusDays(7);
+
+
         when(finTransactionRepository.findByBankAccountAndCreateDateBetween(
                 bankAccount,
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now()
+                fromDate,
+                toDate
         )).thenReturn(transactions);
 
         List<FinTransaction> result = finTransactionRepository.findByBankAccountAndCreateDateBetween(
                 bankAccount,
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now()
+                fromDate,
+                toDate
         );
 
         assertEquals(1, result.size());
-        assertEquals(finTransaction, result.get(0));
+        assertEquals(finTransaction, result.getFirst());
     }
 
     //протестировала метод findByUserAndCreateDateBetween, который возвращает список транзакций для пользователя за указанный период.
@@ -125,19 +129,22 @@ class FinTransactionRepositoryTest {
         List<FinTransaction> transactions = new ArrayList<>();
         transactions.add(finTransaction);
 
+        LocalDateTime fromDate = LocalDateTime.now().minusDays(7);
+        LocalDateTime toDate = LocalDateTime.now().minusDays(7);
+
         when(finTransactionRepository.findByUserAndCreateDateBetween(
                 user,
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now()
+                fromDate,
+                toDate
         )).thenReturn(transactions);
 
         List<FinTransaction> result = finTransactionRepository.findByUserAndCreateDateBetween(
                 user,
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now()
+                fromDate,
+                toDate
         );
 
         assertEquals(1, result.size());
-        assertEquals(finTransaction, result.get(0));
+        assertEquals(finTransaction, result.getFirst());
     }
 }
