@@ -68,13 +68,16 @@ class FinTransactionRepositoryTest {
         List<FinTransaction> transactions = new ArrayList<>();
         transactions.add(finTransaction);
 
+        LocalDateTime fromDate = LocalDateTime.now().minusDays(7);
+        LocalDateTime toDate = LocalDateTime.now().minusDays(7);
+
         when(finTransactionRepository.findFinTransactionsByUserAndFilters(
                 user,
                 "Все",
                 "Все",
                 "Все",
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now(),
+                fromDate,
+                toDate,
                 0.0,
                 1000.0
         )).thenReturn(transactions);
@@ -84,14 +87,14 @@ class FinTransactionRepositoryTest {
                 "Все",
                 "Все",
                 "Все",
-                LocalDateTime.now().minusDays(7),
-                LocalDateTime.now(),
+                fromDate,
+                toDate,
                 0.0,
                 1000.0
         );
 
         assertEquals(1, result.size());
-        assertEquals(finTransaction, result.get(0));
+        assertEquals(finTransaction, result.getFirst());
     }
 
     //протестировала метод findByBankAccountAndCreateDateBetween, который возвращает список транзакций для счета за указанный период.
