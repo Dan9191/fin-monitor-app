@@ -43,6 +43,11 @@ dependencies {
 	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
 	// Для генерации PDF (iText 7)
 	implementation 'com.itextpdf:itext7-core:7.2.5'
+
+	//Тестирование
+	testImplementation 'org.mockito:mockito-inline:5.2.0' // Вместо mockito-core
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+	testImplementation 'org.hsqldb:hsqldb:2.7.1'
 }
 
 tasks.named('test') {
@@ -51,4 +56,17 @@ tasks.named('test') {
 
 tasks.named('compileJava') {
 	options.compilerArgs += ['-parameters']
+}
+
+//АЛЛА
+test {
+	// Добавьте JVM аргументы для Mockito
+	jvmArgs "-javaagent:${classpath.find { it.name.contains("byte-buddy-agent") }.absolutePath}"
+
+	// Альтернативный вариант (для новых версий Mockito)
+	jvmArgs "-Djdk.attach.allowAttachSelf=true"
+}
+
+tasks.withType(Test) {
+	jvmArgs '-Xshare:off'
 }
