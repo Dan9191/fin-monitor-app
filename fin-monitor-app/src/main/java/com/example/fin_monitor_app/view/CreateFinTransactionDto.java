@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -31,5 +31,5 @@ public class CreateFinTransactionDto {
     private String recipientBankAccount;
     private String recipientTelephoneNumber;
     private String withdrawalAccount;
-    private LocalDateTime createDate;
+    private LocalDate createDate;
 }

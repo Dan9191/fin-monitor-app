@@ -407,7 +407,7 @@ public class AccountController {
         dto.setRecipientTelephoneNumber(transaction.getRecipientTelephoneNumber());
         dto.setRecipientBank(transaction.getRecipientBank());
         dto.setRecipientTin(transaction.getRecipientTin());
-        dto.setCreateDate(transaction.getCreateDate());
+        dto.setCreateDate(transaction.getCreateDate().toLocalDate());
 
         return dto;
     }
