@@ -1,6 +1,5 @@
 package com.example.fin_monitor_app.view;
 
-import com.example.fin_monitor_app.entity.PersonType;
 import com.example.fin_monitor_app.model.CategoryEnum;
 import com.example.fin_monitor_app.model.OperationStatusEnum;
 import com.example.fin_monitor_app.model.TransactionTypeEnum;

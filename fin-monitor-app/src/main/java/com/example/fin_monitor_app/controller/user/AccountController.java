@@ -388,6 +388,7 @@ public class AccountController {
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/account/dashboard");
     }
+
     @GetMapping("/transaction/{id}")
     @ResponseBody
     public EditFinTransactionDto getTransactionData(@PathVariable Long id) {
@@ -406,6 +407,7 @@ public class AccountController {
         dto.setRecipientTelephoneNumber(transaction.getRecipientTelephoneNumber());
         dto.setRecipientBank(transaction.getRecipientBank());
         dto.setRecipientTin(transaction.getRecipientTin());
+        dto.setCreateDate(transaction.getCreateDate());
 
         return dto;
     }

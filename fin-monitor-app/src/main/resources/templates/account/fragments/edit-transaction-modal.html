@@ -1,4 +1,3 @@
-<!-- Модальное окно РЕДАКТИРОВАНИЯ операции -->
 <div th:fragment="editTransactionModal(bankAccounts)" class="modal fade" id="editTransactionModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -13,7 +12,6 @@
 
                     <div class="mb-3">
                         <label class="form-label">Кошелек</label>
-
                         <div>
                             <input type="hidden" name="bankAccountName" id="editBankAccountHidden">
                             <input type="text" class="form-control" id="editBankAccountDisplay" disabled>
@@ -54,11 +52,17 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="editCreateDate" class="form-label">Дата и время операции</label>
+                        <input type="datetime-local" class="form-control" id="editCreateDate" name="createDate">
+                        <small class="text-muted">Необязательное поле</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="editCommentary" class="form-label">Комментарий</label>
                         <textarea class="form-control" id="editCommentary" name="commentary"></textarea>
                     </div>
-                    <!-- Формирование аккордеона для раскрытия доп полей -->
 
+                    <!-- Формирование аккордеона для раскрытия доп полей -->
                     <div class="mb-3">
                         <div class="accordion" id="recipientAccordion">
                             <div class="accordion-item">
@@ -72,31 +76,30 @@
                                 <div id="collapseRecipientDetails" class="accordion-collapse collapse"
                                      aria-labelledby="headingRecipientDetails" data-bs-parent="#recipientAccordion">
                                     <div class="accordion-body">
-
                                         <div class="mb-3">
                                             <label for="editSenderBank" class="form-label">Банк отправитель</label>
-                                            <input type="text" step="0.01" class="form-control" id="editSenderBank"
+                                            <input type="text" class="form-control" id="editSenderBank"
                                                    name="senderBank">
                                             <small class="text-muted">Необязательное поле</small>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="editWithdrawalAccount" class="form-label">Счет списания</label>
-                                            <input type="text" step="0.01" class="form-control" id="editWithdrawalAccount"
+                                            <input type="text" class="form-control" id="editWithdrawalAccount"
                                                    name="withdrawalAccount">
                                             <small class="text-muted">Необязательное поле</small>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="editRecipientBank" class="form-label">Банк получателя</label>
-                                            <input type="text" step="0.01" class="form-control" id="editRecipientBank"
+                                            <input type="text" class="form-control" id="editRecipientBank"
                                                    name="recipientBank">
                                             <small class="text-muted">Необязательное поле</small>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="editRecipientBankAccount" class="form-label">Расчетный счет получателя</label>
-                                            <input type="text" step="0.01" class="form-control" id="editRecipientBankAccount"
+                                            <input type="text" class="form-control" id="editRecipientBankAccount"
                                                    name="recipientBankAccount">
                                             <small class="text-muted">Необязательное поле</small>
                                         </div>
@@ -166,7 +169,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>

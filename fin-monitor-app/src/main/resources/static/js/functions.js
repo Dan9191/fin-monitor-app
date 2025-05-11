@@ -267,7 +267,6 @@ function prepareEditForm(button) {
             // Устанавливаем action формы
             document.getElementById('editTransactionForm').action = `/account/edit-fin-transaction/${transactionId}`;
 
-
             const accountHiddenInput = document.getElementById('editBankAccountHidden');
             const accountDisplayInput = document.getElementById('editBankAccountDisplay');
 
@@ -289,6 +288,7 @@ function prepareEditForm(button) {
             document.getElementById('editRecipientBankAccount').value = transaction.recipientBankAccount;
             document.getElementById('editRecipientTelephoneNumber').value = transaction.recipientTelephoneNumber;
             document.getElementById('editRecipientTin').value = transaction.recipientTin;
+            document.getElementById('editCreateDate').value = transaction.createDate.substring(0, 16);
         })
         .catch(error => alert('Ошибка при редактировании операции: ' + error.message));
 }

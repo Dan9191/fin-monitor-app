@@ -213,7 +213,7 @@ public class FinTransactionService {
         // Обновление полей транзакции
         finTransaction.setCategory(categoryCacheService.findById(dto.getCategoryEnum().getId()));
         finTransaction.setSum(newAmount);
-        finTransaction.setCreateDate(LocalDateTime.now());
+        finTransaction.setCreateDate(dto.getCreateDate());
         finTransaction.setCommentary(dto.getCommentary());
         finTransaction.setTransactionType(
                 transactionTypeService.findById(dto.getTransactionType().getId())
